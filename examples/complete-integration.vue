@@ -3,7 +3,7 @@
     <header class="demo-header">
       <h1>Complete Text Editor Integration</h1>
       <p class="demo-description">
-        This demo showcases all implemented features: rich text formatting, links, images, and clipboard operations.
+        This demo showcases all implemented features: rich text formatting, links, images, tables, text alignment, and clipboard operations.
       </p>
     </header>
 
@@ -11,7 +11,7 @@
       <div class="editor-section">
         <h2>Rich Text Editor</h2>
         <p class="feature-info">
-          <strong>Features included:</strong> Text formatting, colors, fonts, links, images, lists, clipboard operations, and more.
+          <strong>Features included:</strong> Text formatting, colors, fonts, links, images, tables, text alignment, lists, clipboard operations, and more.
         </p>
 
         <TextEditor
@@ -43,6 +43,28 @@
               <li>Auto-link detection</li>
               <li>Image upload with drag & drop</li>
               <li>Image resizing & alignment</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3>📊 Tables</h3>
+            <ul>
+              <li>Insert tables with customizable dimensions</li>
+              <li>Add/Delete columns and rows</li>
+              <li>Merge and split cells</li>
+              <li>Toggle header rows and columns</li>
+              <li>Delete entire tables</li>
+              <li>Column resizing support</li>
+            </ul>
+          </div>
+
+          <div class="feature-card">
+            <h3>⚡ Text Alignment</h3>
+            <ul>
+              <li>Align Left, Center, Right</li>
+              <li>Justify text alignment</li>
+              <li>Apply to paragraphs and headings</li>
+              <li>Keyboard shortcuts support</li>
             </ul>
           </div>
 
@@ -91,9 +113,29 @@
             <div class="test-category">
               <h4>Images</h4>
               <ol>
-                <li>Click image upload button</li>
-                <li>Drag and drop an image file</li>
-                <li>Select uploaded image to resize/align</li>
+                <li>Click 🖼️ image button in toolbar</li>
+                <li>Enter an image URL (try: https://via.placeholder.com/300x200)</li>
+                <li>Optionally provide alt text</li>
+                <li>Image will be inserted into the editor</li>
+              </ol>
+            </div>
+
+            <div class="test-category">
+              <h4>Tables</h4>
+              <ol>
+                <li>Click Insert Table button</li>
+                <li>Add/delete rows and columns</li>
+                <li>Select cells and merge them</li>
+                <li>Toggle header rows/columns</li>
+              </ol>
+            </div>
+
+            <div class="test-category">
+              <h4>Text Alignment</h4>
+              <ol>
+                <li>Select text and try alignment buttons</li>
+                <li>Use on headings and paragraphs</li>
+                <li>Try justify alignment for longer text</li>
               </ol>
             </div>
 
@@ -144,6 +186,11 @@ const editorContent = ref(`
 <p>Check out this link: <a href="https://example.com">Example Website</a></p>
 <p>Auto-detected URLs: https://github.com/user/repo</p>
 
+<div class="image-wrapper image-center">
+  <img src="https://via.placeholder.com/400x200/3b82f6/ffffff?text=Sample+Image" alt="Sample placeholder image" title="Click the image button in toolbar to add your own!" data-alignment="center" width="400" height="200">
+</div>
+<p style="text-align: center;"><em>Click the 🖼️ button in the toolbar to add your own images!</em></p>
+
 <blockquote>
   <p>This is a blockquote demonstrating the quote formatting feature.</p>
 </blockquote>
@@ -169,7 +216,37 @@ const editorContent = ref(`
 
 <hr>
 
-<h2>Phase 4: Clipboard Operations 📋</h2>
+<h2>Phase 4: Tables & Advanced Features 📊</h2>
+<table>
+  <tr>
+    <th>Feature</th>
+    <th>Status</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>Tables</td>
+    <td>✅ Complete</td>
+    <td>Full table support with merge/split cells</td>
+  </tr>
+  <tr>
+    <td>Text Alignment</td>
+    <td>✅ Complete</td>
+    <td>Left, center, right, justify alignment</td>
+  </tr>
+  <tr>
+    <td>Image Upload</td>
+    <td>✅ Complete</td>
+    <td>Drag & drop with resize capabilities</td>
+  </tr>
+</table>
+
+<h3 style="text-align: center;">Text Alignment Examples</h3>
+<p style="text-align: left;">This paragraph is left-aligned (default).</p>
+<p style="text-align: center;">This paragraph is center-aligned.</p>
+<p style="text-align: right;">This paragraph is right-aligned.</p>
+<p style="text-align: justify;">This paragraph is justified. It demonstrates how justify alignment works by spreading text evenly across the line width, which is especially noticeable in longer paragraphs with multiple lines of text.</p>
+
+<h2>Phase 5: Clipboard Operations 📋</h2>
 <p><strong>Try these clipboard features:</strong></p>
 <ul>
   <li>Select text and use toolbar buttons (Copy, Cut, Paste)</li>
@@ -178,7 +255,7 @@ const editorContent = ref(`
   <li>Paste as plain text to remove formatting</li>
 </ul>
 
-<p>🎉 <strong>All features are now integrated and ready for testing!</strong></p>
+<p style="text-align: center;">🎉 <strong>All features are now integrated and ready for testing!</strong></p>
 `)
 
 // Complete toolbar configuration with all features
@@ -216,8 +293,41 @@ const customToolbarItems = ref<ToolbarItem[]>([
   },
   { type: 'separator' },
 
-  // Links
+  // Links & Media
   { type: 'link', name: 'link', icon: 'link', title: 'Insert/Edit Link (Ctrl+K)', command: 'toggleLink' },
+  { type: 'button', name: 'image', icon: '🖼️', title: 'Insert Image (Ctrl+Shift+I)', command: 'insertImageWithPrompt' },
+  { type: 'separator' },
+
+  // Tables
+  {
+    type: 'group',
+    items: [
+      { type: 'button', name: 'insertTable', icon: '⊞', title: 'Insert Table', command: 'insertTable' },
+      { type: 'button', name: 'addColumnBefore', icon: '⊲', title: 'Add Column Before', command: 'addColumnBefore' },
+      { type: 'button', name: 'addColumnAfter', icon: '⊳', title: 'Add Column After', command: 'addColumnAfter' },
+      { type: 'button', name: 'deleteColumn', icon: '⊘', title: 'Delete Column', command: 'deleteColumn' },
+      { type: 'button', name: 'addRowBefore', icon: '⊤', title: 'Add Row Before', command: 'addRowBefore' },
+      { type: 'button', name: 'addRowAfter', icon: '⊥', title: 'Add Row After', command: 'addRowAfter' },
+      { type: 'button', name: 'deleteRow', icon: '⊖', title: 'Delete Row', command: 'deleteRow' },
+      { type: 'button', name: 'mergeCells', icon: '⋈', title: 'Merge Cells', command: 'mergeCells' },
+      { type: 'button', name: 'splitCell', icon: '⊟', title: 'Split Cell', command: 'splitCell' },
+      { type: 'button', name: 'toggleHeaderColumn', icon: '⊤', title: 'Toggle Header Column', command: 'toggleHeaderColumn' },
+      { type: 'button', name: 'toggleHeaderRow', icon: '⊤', title: 'Toggle Header Row', command: 'toggleHeaderRow' },
+      { type: 'button', name: 'deleteTable', icon: '🗑️', title: 'Delete Table', command: 'deleteTable' }
+    ]
+  },
+  { type: 'separator' },
+
+  // Text Alignment
+  {
+    type: 'group',
+    items: [
+      { type: 'button', name: 'alignLeft', icon: '⌊', title: 'Align Left', command: 'alignLeft' },
+      { type: 'button', name: 'alignCenter', icon: '⌊⌋', title: 'Align Center', command: 'alignCenter' },
+      { type: 'button', name: 'alignRight', icon: '⌋', title: 'Align Right', command: 'alignRight' },
+      { type: 'button', name: 'alignJustify', icon: '≡', title: 'Align Justify', command: 'alignJustify' }
+    ]
+  },
   { type: 'separator' },
 
   // Block formatting
@@ -469,5 +579,30 @@ const customToolbarItems = ref<ToolbarItem[]>([
   .content-preview h3 {
     color: #e5e7eb;
   }
+}
+
+/* Image display styles */
+.image-wrapper {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.image-wrapper.image-left {
+  text-align: left;
+}
+
+.image-wrapper.image-right {
+  text-align: right;
+}
+
+.image-wrapper.image-center {
+  text-align: center;
+}
+
+.image-wrapper img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 </style>

@@ -273,6 +273,15 @@ export function createCommands(editor: Editor): SingleCommands {
       return true
     },
 
+    insertImageWithPrompt: () => {
+      const url = prompt('Enter image URL:')
+      if (url) {
+        const alt = prompt('Enter image alt text (optional):') || ''
+        return editor.commands.insertImage(url, alt)
+      }
+      return false
+    },
+
     // Table commands
     insertTable: (rows: number = 3, cols: number = 3, withHeaderRow: boolean = true) => {
       const { schema } = editor.state
