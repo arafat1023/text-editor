@@ -1,6 +1,6 @@
 <template>
   <div class="editor-toolbar">
-    <template v-for="(item, index) in items" :key="index">
+    <template v-for="(item, _index) in items" :key="_index">
       <div v-if="item.type === 'separator'" class="editor-toolbar__separator" />
 
       <div
@@ -160,12 +160,12 @@ const executeCommand = (item: ToolbarItem) => {
 const getCurrentColor = (item: ToolbarItem): string | undefined => {
   if (item.command === 'textColor') {
     // Get current text color from editor state
-    const mark = props.editor.state.selection.$from.marks().find(m => m.type.name === 'textColor')
+    const mark = props.editor.state.selection.$from.marks().find((m: any) => m.type.name === 'textColor')
     return mark?.attrs.color || undefined
   }
   if (item.command === 'backgroundColor') {
     // Get current background color from editor state
-    const mark = props.editor.state.selection.$from.marks().find(m => m.type.name === 'backgroundColor')
+    const mark = props.editor.state.selection.$from.marks().find((m: any) => m.type.name === 'backgroundColor')
     return mark?.attrs.color || undefined
   }
   return undefined
@@ -174,11 +174,11 @@ const getCurrentColor = (item: ToolbarItem): string | undefined => {
 // Get current font value
 const getCurrentFont = (item: ToolbarItem): string | undefined => {
   if (item.command === 'fontFamily') {
-    const mark = props.editor.state.selection.$from.marks().find(m => m.type.name === 'fontFamily')
+    const mark = props.editor.state.selection.$from.marks().find((m: any) => m.type.name === 'fontFamily')
     return mark?.attrs.family || undefined
   }
   if (item.command === 'fontSize') {
-    const mark = props.editor.state.selection.$from.marks().find(m => m.type.name === 'fontSize')
+    const mark = props.editor.state.selection.$from.marks().find((m: any) => m.type.name === 'fontSize')
     return mark?.attrs.size || undefined
   }
   return undefined
@@ -201,7 +201,7 @@ const setFont = (item: ToolbarItem, font: string | null) => {
 }
 
 // Get current heading level
-const getCurrentHeading = (item: ToolbarItem): number | null => {
+const getCurrentHeading = (_item: ToolbarItem): number | null => {
   const state = props.editor.state
   const { selection } = state
   const { $from } = selection
@@ -222,7 +222,7 @@ const getCurrentHeading = (item: ToolbarItem): number | null => {
 }
 
 // Set heading level
-const setHeading = (item: ToolbarItem, level: number | null) => {
+const setHeading = (_item: ToolbarItem, level: number | null) => {
   const commands = props.editor.commands as any
 
   if (level === null) {
@@ -252,7 +252,7 @@ const handleLinkClick = (item: ToolbarItem) => {
   // Check if we're editing an existing link
   if (props.editor.isActive('link')) {
     // Get current link attributes
-    const mark = selection.$from.marks().find(m => m.type.name === 'link')
+    const mark = selection.$from.marks().find((m: any) => m.type.name === 'link')
     linkDialog.value = {
       isOpen: true,
       linkData: mark ? mark.attrs : null,

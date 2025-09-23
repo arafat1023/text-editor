@@ -1,17 +1,16 @@
-import { EditorState, Transaction } from 'prosemirror-state'
+import { EditorState, Transaction, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { Schema, DOMParser, DOMSerializer } from 'prosemirror-model'
 import { editorSchema } from './schema'
 import { history, undo, redo } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
 import { baseKeymap } from 'prosemirror-commands'
+import { splitListItem, liftListItem, sinkListItem } from 'prosemirror-schema-list'
 import type {
   EditorOptions,
   EditorInstance,
   EditorSelection,
   Extension,
-  Command,
-  CommandProps,
   ChainedCommands,
   SingleCommands
 } from '@/types'
@@ -21,9 +20,9 @@ export class Editor implements EditorInstance {
   public view: EditorView
   public state: EditorState
   public schema: Schema
-  private extensions: Extension[] = []
-  private element: HTMLElement
-  private options: EditorOptions
+  public extensions: Extension[] = []
+  public element: HTMLElement
+  public options: EditorOptions
   public commands: SingleCommands
   private isDestroyed = false
 
@@ -59,11 +58,19 @@ export class Editor implements EditorInstance {
   private createState(): EditorState {
     const doc = this.createDocument(this.options.content || '')
 
+    // Create list-specific keymaps
+    const listKeymap = keymap({
+      'Enter': splitListItem(this.schema.nodes.list_item),
+      'Shift-Tab': liftListItem(this.schema.nodes.list_item),
+      'Tab': sinkListItem(this.schema.nodes.list_item)
+    })
+
     return EditorState.create({
       doc,
       schema: this.schema,
       plugins: [
         history(),
+        listKeymap,
         keymap(baseKeymap),
         keymap({
           'Mod-z': undo,
@@ -93,13 +100,13 @@ export class Editor implements EditorInstance {
         }
       },
       handleDOMEvents: {
-        focus: (view, event) => {
+        focus: (_view, event) => {
           if (this.options.onFocus) {
             this.options.onFocus({ editor: this, event })
           }
           return false
         },
-        blur: (view, event) => {
+        blur: (_view, event) => {
           if (this.options.onBlur) {
             this.options.onBlur({ editor: this, event })
           }
@@ -176,13 +183,13 @@ export class Editor implements EditorInstance {
     const { tr } = this.state
 
     if (typeof position === 'number') {
-      tr.setSelection(this.state.selection.constructor.near(tr.doc.resolve(position)))
+      tr.setSelection(TextSelection.near(tr.doc.resolve(position)))
     } else {
       tr.setSelection(
-        this.state.selection.constructor.create(
+        TextSelection.create(
           tr.doc,
-          tr.doc.resolve(position.anchor),
-          tr.doc.resolve(position.head)
+          position.anchor,
+          position.head
         )
       )
     }

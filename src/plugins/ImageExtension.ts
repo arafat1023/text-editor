@@ -16,7 +16,7 @@ export const ImageExtension: Extension = {
 
   addCommands() {
     return {
-      insertImage: (src: string, alt?: string, title?: string) => ({ commands, editor, tr }) => {
+      insertImage: (src: string, alt?: string, title?: string) => ({ editor, tr }) => {
         if (!src) return false
 
         const imageNode = editor.state.schema.nodes.image
@@ -29,13 +29,12 @@ export const ImageExtension: Extension = {
         })
 
         // Insert at current position
-        const { selection } = editor.state
         tr.replaceSelectionWith(node)
 
         return true
       },
 
-      uploadImage: (file: File, options?: Partial<ImageOptions>) => ({ commands, editor }) => {
+      uploadImage: (file: File, options?: Partial<ImageOptions>) => ({ editor }) => {
         const opts: ImageOptions = {
           maxSize: 10 * 1024 * 1024, // 10MB default
           allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
@@ -56,7 +55,7 @@ export const ImageExtension: Extension = {
         }
 
         // Insert placeholder first
-        const placeholderInserted = commands.insertImage(opts.placeholder!, `Uploading ${file.name}...`)
+        const placeholderInserted = editor.commands.insertImage(opts.placeholder!, `Uploading ${file.name}...`)
         if (!placeholderInserted) return false
 
         // Handle upload
@@ -65,11 +64,11 @@ export const ImageExtension: Extension = {
           opts.uploadHandler(file)
             .then(url => {
               // Replace placeholder with actual image
-              commands.updateImage(opts.placeholder!, url, file.name)
+              editor.commands.updateImage(opts.placeholder!, url, file.name)
             })
             .catch(error => {
               console.error('Upload failed:', error)
-              commands.removeImage(opts.placeholder!)
+              editor.commands.removeImage(opts.placeholder!)
             })
         } else {
           // Use FileReader for local preview
@@ -77,12 +76,12 @@ export const ImageExtension: Extension = {
           reader.onload = (e) => {
             const dataUrl = e.target?.result as string
             if (dataUrl) {
-              commands.updateImage(opts.placeholder!, dataUrl, file.name)
+              editor.commands.updateImage(opts.placeholder!, dataUrl, file.name)
             }
           }
           reader.onerror = () => {
             console.error('Failed to read file')
-            commands.removeImage(opts.placeholder!)
+            editor.commands.removeImage(opts.placeholder!)
           }
           reader.readAsDataURL(file)
         }
@@ -93,7 +92,7 @@ export const ImageExtension: Extension = {
       updateImage: (oldSrc: string, newSrc: string, alt?: string, title?: string) => ({ editor, tr, dispatch }) => {
         let updated = false
 
-        editor.state.doc.descendants((node, pos) => {
+        editor.state.doc.descendants((node: any, pos: number) => {
           if (node.type.name === 'image' && node.attrs.src === oldSrc) {
             const newAttrs = {
               ...node.attrs,
@@ -116,7 +115,7 @@ export const ImageExtension: Extension = {
       removeImage: (src: string) => ({ editor, tr, dispatch }) => {
         let removed = false
 
-        editor.state.doc.descendants((node, pos) => {
+        editor.state.doc.descendants((node: any, pos: number) => {
           if (node.type.name === 'image' && node.attrs.src === src) {
             tr.delete(pos, pos + node.nodeSize)
             removed = true
@@ -142,22 +141,7 @@ export const ImageExtension: Extension = {
 
   addKeyboardShortcuts() {
     return {
-      'Mod-Shift-i': () => ({ commands }) => {
-        // Trigger image upload dialog
-        if (typeof document !== 'undefined') {
-          const input = document.createElement('input')
-          input.type = 'file'
-          input.accept = 'image/*'
-          input.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0]
-            if (file) {
-              commands.uploadImage(file)
-            }
-          }
-          input.click()
-        }
-        return true
-      }
+      'Mod-Shift-i': () => false // Will be handled by editor commands
     }
   },
 

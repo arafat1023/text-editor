@@ -3,8 +3,7 @@ import { Editor } from '@/core/Editor'
 import type {
   EditorOptions,
   EditorInstance,
-  UseTextEditorReturn,
-  Extension
+  UseTextEditorReturn
 } from '@/types'
 
 export function useTextEditor(options: EditorOptions = {}): UseTextEditorReturn {
@@ -25,12 +24,20 @@ export function useTextEditor(options: EditorOptions = {}): UseTextEditorReturn 
 
   const canUndo = computed(() => {
     if (!editor.value || !isReady.value) return false
-    return editor.value.can().undo()
+    try {
+      return (editor.value.can().undo() as any) || false
+    } catch {
+      return false
+    }
   })
 
   const canRedo = computed(() => {
     if (!editor.value || !isReady.value) return false
-    return editor.value.can().redo()
+    try {
+      return (editor.value.can().redo() as any) || false
+    } catch {
+      return false
+    }
   })
 
   const wordCount = computed(() => {
@@ -75,7 +82,7 @@ export function useTextEditor(options: EditorOptions = {}): UseTextEditorReturn 
       }
     }
 
-    editor.value = new Editor(editorOptions)
+    editor.value = new Editor(editorOptions) as EditorInstance
   }
 
   // Destroy editor
@@ -86,12 +93,12 @@ export function useTextEditor(options: EditorOptions = {}): UseTextEditorReturn 
     }
   }
 
-  // Mount editor to DOM element
-  const mount = (element: HTMLElement) => {
-    if (editor.value) {
-      editor.value.mount(element)
-    }
-  }
+  // Mount editor to DOM element (commented out - not used)
+  // const mount = (element: HTMLElement) => {
+  //   if (editor.value) {
+  //     editor.value.mount(element)
+  //   }
+  // }
 
   // Helper methods
   const getHTML = () => editor.value?.getHTML() || ''
@@ -132,8 +139,6 @@ export function useTextEditor(options: EditorOptions = {}): UseTextEditorReturn 
     characterCount,
 
     // Methods
-    mount,
-    createEditor,
     destroyEditor,
     getHTML,
     getJSON,

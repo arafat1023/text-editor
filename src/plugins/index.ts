@@ -20,6 +20,8 @@ import { LinkExtension } from './LinkExtension'
 import { AutoLinkExtension } from './AutoLinkExtension'
 import { ImageExtension } from './ImageExtension'
 import { ClipboardExtension } from './ClipboardExtension'
+import { TableExtension } from './TableExtension'
+import { TextAlignmentExtension } from './TextAlignmentExtension'
 
 // Basic text formatting
 export { BoldExtension }
@@ -49,6 +51,8 @@ export { LinkExtension }
 export { AutoLinkExtension }
 export { ImageExtension }
 export { ClipboardExtension }
+export { TableExtension }
+export { TextAlignmentExtension }
 
 // Extension presets
 export const BasicExtensions = [
@@ -89,8 +93,14 @@ export const InteractiveExtensions = [
   ClipboardExtension
 ]
 
+export const StructuralExtensions = [
+  TableExtension,
+  TextAlignmentExtension
+]
+
 export const AllExtensions = [
   ...FormattingExtensions,
   ...BlockExtensions,
-  ...InteractiveExtensions
+  ...InteractiveExtensions,
+  ...StructuralExtensions
 ]

@@ -1,8 +1,22 @@
 import { toggleMark, setBlockType, wrapIn } from 'prosemirror-commands'
 import { undo, redo } from 'prosemirror-history'
+import { AllSelection } from 'prosemirror-state'
 import { wrapInList, splitListItem, liftListItem, sinkListItem } from 'prosemirror-schema-list'
+import {
+  addColumnBefore,
+  addColumnAfter,
+  deleteColumn,
+  addRowBefore,
+  addRowAfter,
+  deleteRow,
+  mergeCells,
+  splitCell,
+  toggleHeaderRow,
+  toggleHeaderColumn,
+  deleteTable
+} from 'prosemirror-tables'
 import type { Editor } from './Editor'
-import type { SingleCommands, CommandProps } from '@/types'
+import type { SingleCommands } from '@/types'
 
 export function createCommands(editor: Editor): SingleCommands {
   return {
@@ -84,7 +98,7 @@ export function createCommands(editor: Editor): SingleCommands {
     // Selection
     selectAll: () => {
       const { tr } = editor.state
-      tr.setSelection(editor.state.selection.constructor.create(tr.doc, 0, tr.doc.content.size))
+      tr.setSelection(new AllSelection(tr.doc))
       editor.view.dispatch(tr)
       return true
     },
@@ -257,10 +271,101 @@ export function createCommands(editor: Editor): SingleCommands {
       }
       reader.readAsDataURL(file)
       return true
+    },
+
+    // Table commands
+    insertTable: (rows: number = 3, cols: number = 3, withHeaderRow: boolean = true) => {
+      const { schema } = editor.state
+      const tableNode = schema.nodes.table
+      const rowNode = schema.nodes.table_row
+      const cellNode = schema.nodes.table_cell
+      const headerCellNode = schema.nodes.table_header
+
+      if (!tableNode || !rowNode || !cellNode || !headerCellNode) {
+        console.error('Table nodes not found in schema')
+        return false
+      }
+
+      const { tr } = editor.state
+
+      // Create table rows
+      const tableRows = []
+
+      for (let i = 0; i < rows; i++) {
+        const cells = []
+        const isHeaderRow = withHeaderRow && i === 0
+
+        for (let j = 0; j < cols; j++) {
+          const cellType = isHeaderRow ? headerCellNode : cellNode
+          cells.push(cellType.createAndFill()!)
+        }
+
+        tableRows.push(rowNode.create(null, cells))
+      }
+
+      const table = tableNode.create(null, tableRows)
+      tr.replaceSelectionWith(table)
+      editor.view.dispatch(tr)
+
+      return true
+    },
+
+    addColumnBefore: () => executeCommand(editor, addColumnBefore),
+    addColumnAfter: () => executeCommand(editor, addColumnAfter),
+    deleteColumn: () => executeCommand(editor, deleteColumn),
+    addRowBefore: () => executeCommand(editor, addRowBefore),
+    addRowAfter: () => executeCommand(editor, addRowAfter),
+    deleteRow: () => executeCommand(editor, deleteRow),
+    deleteTable: () => executeCommand(editor, deleteTable),
+    mergeCells: () => executeCommand(editor, mergeCells),
+    splitCell: () => executeCommand(editor, splitCell),
+    toggleHeaderRow: () => executeCommand(editor, toggleHeaderRow),
+    toggleHeaderColumn: () => executeCommand(editor, toggleHeaderColumn),
+
+    // Text alignment commands
+    alignLeft: () => {
+      return setTextAlignment(editor, 'left')
+    },
+
+    alignCenter: () => {
+      return setTextAlignment(editor, 'center')
+    },
+
+    alignRight: () => {
+      return setTextAlignment(editor, 'right')
+    },
+
+    alignJustify: () => {
+      return setTextAlignment(editor, 'justify')
+    },
+
+    clearAlignment: () => {
+      return setTextAlignment(editor, null)
     }
   }
 }
 
 function executeCommand(editor: Editor, command: any): boolean {
   return command(editor.state, editor.view.dispatch, editor.view)
+}
+
+function setTextAlignment(editor: Editor, alignment: string | null): boolean {
+  const { tr, selection } = editor.state
+  const { from, to } = selection
+
+  let updated = false
+
+  editor.state.doc.nodesBetween(from, to, (node, pos) => {
+    if (node.type.name === 'paragraph' || node.type.name === 'heading') {
+      const newAttrs = { ...node.attrs, textAlign: alignment }
+      tr.setNodeMarkup(pos, null, newAttrs)
+      updated = true
+    }
+  })
+
+  if (updated) {
+    editor.view.dispatch(tr)
+  }
+
+  return updated
 }

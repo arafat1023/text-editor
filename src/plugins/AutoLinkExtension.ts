@@ -33,7 +33,7 @@ export const AutoLinkExtension: Extension = {
             }
           },
 
-          apply(tr, state, oldState, newState) {
+          apply(tr, state, _oldState, _newState) {
             const { decorations, pendingLinks } = state
             let newDecorations = decorations.map(tr.mapping, tr.doc)
             let newPendingLinks = new Map(pendingLinks)
@@ -185,8 +185,8 @@ function findAutoLinks(doc: any): AutoLink[] {
 }
 
 function isInsideLink(doc: any, from: number, to: number): boolean {
-  const $from = doc.resolve(from)
-  const $to = doc.resolve(to)
+  // const $from = doc.resolve(from)
+  // const $to = doc.resolve(to)
 
   // Check if any position has a link mark
   for (let pos = from; pos < to; pos++) {

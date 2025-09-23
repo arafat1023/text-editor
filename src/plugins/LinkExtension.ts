@@ -1,4 +1,4 @@
-import type { Extension } from '@/types'
+import type { Extension, CommandProps } from '@/types'
 
 // URL validation regex
 const URL_REGEX = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
@@ -9,7 +9,7 @@ export const LinkExtension: Extension = {
 
   addCommands() {
     return {
-      setLink: (href: string, title?: string, target?: string) => ({ commands }) => {
+      setLink: (href: string, title?: string, target?: string) => ({ editor }: CommandProps) => {
         if (!href) return false
 
         // Validate URL
@@ -18,60 +18,39 @@ export const LinkExtension: Extension = {
           return false
         }
 
-        return commands.link(href, title, target)
+        return editor.commands.link(href, title, target)
       },
 
-      toggleLink: (href?: string, title?: string, target?: string) => ({ commands }) => {
+      toggleLink: (href?: string, title?: string, target?: string) => ({ editor }: CommandProps) => {
         // If selection has link, remove it
-        if (commands.isLinkActive()) {
-          return commands.unsetLink()
+        if (editor.isActive('link')) {
+          return editor.commands.unsetLink()
         }
 
         // Otherwise set link if href provided
         if (href) {
-          return commands.setLink(href, title, target)
+          return editor.commands.link(href, title, target)
         }
 
         return false
       },
 
-      unsetLink: () => ({ commands }) => commands.unsetLink(),
+      unsetLink: () => ({ editor }: CommandProps) => editor.commands.unsetLink(),
 
-      editLink: (href: string, title?: string, target?: string) => ({ commands }) => {
+      editLink: (href: string, title?: string, target?: string) => ({ editor }: CommandProps) => {
         if (!href || !isValidUrl(href)) return false
-        return commands.setLink(href, title, target)
+        return editor.commands.link(href, title, target)
       },
 
-      isLinkActive: () => ({ editor }) => {
+      isLinkActive: () => ({ editor }: CommandProps) => {
         return editor.isActive('link')
-      },
-
-      getLinkAttrs: () => ({ editor }) => {
-        const { selection } = editor.state
-        const mark = selection.$from.marks().find(m => m.type.name === 'link')
-        return mark ? mark.attrs : null
       }
     }
   },
 
   addKeyboardShortcuts() {
     return {
-      'Mod-k': () => ({ commands, editor }) => {
-        // Get current link if exists
-        const attrs = commands.getLinkAttrs()
-
-        // Trigger link dialog (will be implemented)
-        if (typeof window !== 'undefined') {
-          const href = window.prompt('Enter URL:', attrs?.href || '')
-          if (href) {
-            return commands.setLink(href)
-          } else if (href === '') {
-            return commands.unsetLink()
-          }
-        }
-
-        return false
-      }
+      'Mod-k': () => false // Will be handled by editor commands
     }
   },
 

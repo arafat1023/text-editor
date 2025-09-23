@@ -18,7 +18,7 @@ export const BulletListExtension: Extension = {
 
   addKeyboardShortcuts() {
     return {
-      // Keyboard shortcuts will be handled by the core editor
+      // List keyboard shortcuts are handled in the core editor
     }
   },
 

@@ -84,7 +84,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { validateImageFile, createImagePreview, type ImageOptions } from '@/plugins/ImageExtension'
+import { validateImageFile, createImagePreview } from '@/plugins/ImageExtension'
 
 interface UploadProgressItem {
   name: string

@@ -47,8 +47,7 @@ import {
   onUnmounted,
   watch,
   computed,
-  provide,
-  type PropType
+  provide
 } from 'vue'
 import { Editor } from '@/core/Editor'
 import { AllExtensions } from '@/plugins'
@@ -214,7 +213,7 @@ const createEditor = () => {
     ...props.options
   }
 
-  const editorInstance = new Editor(editorOptions)
+  const editorInstance = new Editor(editorOptions) as EditorInstance
   editorInstance.mount(editorRef.value)
   editor.value = editorInstance
 }
@@ -225,7 +224,7 @@ const updateCounts = () => {
 
   const text = editor.value.getText()
   characterCount.value = text.length
-  wordCount.value = text.trim().split(/\s+/).filter(word => word.length > 0).length
+  wordCount.value = text.trim().split(/\s+/).filter((word: string) => word.length > 0).length
 }
 
 // Context menu methods
@@ -255,8 +254,9 @@ watch(() => props.modelValue, (newValue) => {
 // Watch for editable changes
 watch(() => props.editable, (newValue) => {
   if (editor.value) {
-    // Update editable state
-    editor.value.view.editable = () => newValue
+    // Update editable state - editable is a function in ProseMirror
+    const view = editor.value.view as any
+    view.props = { ...view.props, editable: () => newValue }
   }
 })
 
