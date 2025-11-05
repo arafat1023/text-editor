@@ -77,7 +77,7 @@ export function createCommands(editor: Editor): SingleCommands {
 
     // Block formatting
     paragraph: () => executeCommand(editor, setBlockType(editor.schema.nodes.paragraph)),
-    heading: (level: number = 1) => {
+    heading: (level: 1 | 2 | 3 | 4 | 5 | 6 = 1) => {
       const headingNode = editor.schema.nodes[`heading${level}`] || editor.schema.nodes.heading
       return executeCommand(editor, setBlockType(headingNode, { level }))
     },

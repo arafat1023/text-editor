@@ -45,6 +45,9 @@ export type {
   EditorTheme
 } from '@/types'
 
+// Plugin-specific types
+export type { ImageOptions, ImageUploadError } from '@/plugins/ImageExtension'
+
 // Default export for convenience
 import TextEditor from '@/components/TextEditor.vue'
 export default TextEditor

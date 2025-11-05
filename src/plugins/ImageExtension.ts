@@ -7,6 +7,14 @@ export interface ImageOptions {
   uploadHandler?: (file: File) => Promise<string> // Custom upload handler that returns image URL
   placeholder?: string // Placeholder image while uploading
   inline?: boolean // Whether image is inline or block-level
+  onError?: (error: ImageUploadError) => void // Custom error handler
+}
+
+export interface ImageUploadError {
+  type: 'invalidType' | 'fileSize' | 'uploadFailed' | 'readError'
+  message: string
+  file?: File
+  details?: any
 }
 
 export const ImageExtension: Extension = {
@@ -43,20 +51,43 @@ export const ImageExtension: Extension = {
           ...options
         }
 
-        // Validate file
+        // Validate file type
         if (!opts.allowedTypes!.includes(file.type)) {
-          const error = `Invalid file type: ${file.type}. Allowed types: ${opts.allowedTypes!.join(', ')}`
-          console.error(error)
-          alert(error) // User feedback
+          const errorMsg = `Invalid file type: ${file.type}. Allowed types: ${opts.allowedTypes!.join(', ')}`
+          const error: ImageUploadError = {
+            type: 'invalidType',
+            message: errorMsg,
+            file,
+            details: { fileType: file.type, allowedTypes: opts.allowedTypes }
+          }
+          console.error(errorMsg)
+
+          if (opts.onError) {
+            opts.onError(error)
+          } else {
+            console.warn('Image upload error:', error)
+          }
           return false
         }
 
+        // Validate file size
         if (file.size > opts.maxSize!) {
           const maxSizeMB = (opts.maxSize! / 1024 / 1024).toFixed(2)
           const fileSizeMB = (file.size / 1024 / 1024).toFixed(2)
-          const error = `File too large: ${fileSizeMB}MB exceeds maximum allowed size of ${maxSizeMB}MB`
-          console.error(error)
-          alert(error) // User feedback
+          const errorMsg = `File too large: ${fileSizeMB}MB exceeds maximum allowed size of ${maxSizeMB}MB`
+          const error: ImageUploadError = {
+            type: 'fileSize',
+            message: errorMsg,
+            file,
+            details: { fileSize: file.size, maxSize: opts.maxSize }
+          }
+          console.error(errorMsg)
+
+          if (opts.onError) {
+            opts.onError(error)
+          } else {
+            console.warn('Image upload error:', error)
+          }
           return false
         }
 
@@ -72,10 +103,22 @@ export const ImageExtension: Extension = {
               // Replace placeholder with actual image
               editor.commands.updateImage(opts.placeholder!, url, file.name)
             })
-            .catch(error => {
-              const errorMsg = `Upload failed: ${error.message || 'Unknown error'}`
-              console.error(errorMsg, error)
-              alert(errorMsg) // User feedback
+            .catch(err => {
+              const errorMsg = `Upload failed: ${err.message || 'Unknown error'}`
+              const error: ImageUploadError = {
+                type: 'uploadFailed',
+                message: errorMsg,
+                file,
+                details: err
+              }
+              console.error(errorMsg, err)
+
+              if (opts.onError) {
+                opts.onError(error)
+              } else {
+                console.warn('Image upload error:', error)
+              }
+
               editor.commands.removeImage(opts.placeholder!)
             })
         } else {
@@ -88,9 +131,20 @@ export const ImageExtension: Extension = {
             }
           }
           reader.onerror = () => {
-            const error = 'Failed to read file. Please try again.'
-            console.error(error)
-            alert(error) // User feedback
+            const errorMsg = 'Failed to read file. Please try again.'
+            const error: ImageUploadError = {
+              type: 'readError',
+              message: errorMsg,
+              file
+            }
+            console.error(errorMsg)
+
+            if (opts.onError) {
+              opts.onError(error)
+            } else {
+              console.warn('Image upload error:', error)
+            }
+
             editor.commands.removeImage(opts.placeholder!)
           }
           reader.readAsDataURL(file)

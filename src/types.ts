@@ -115,7 +115,7 @@ export interface SingleCommands {
 
   // Block formatting
   paragraph: () => boolean
-  heading: (level?: number) => boolean
+  heading: (level?: 1 | 2 | 3 | 4 | 5 | 6) => boolean
   blockquote: () => boolean
   codeBlock: () => boolean
 
