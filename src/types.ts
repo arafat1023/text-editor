@@ -70,13 +70,14 @@ export interface EditorSelection {
 // Extension System Types
 export interface Extension {
   name?: string
-  type?: 'mark' | 'node' | 'plugin'
+  type?: 'mark' | 'node' | 'plugin' | 'extension'
   priority?: number
 
   addCommands?(): Record<string, (args?: any) => Command>
   addKeyboardShortcuts?(): Record<string, () => boolean>
   addNodeView?(): any
   addOptions?(): Record<string, any>
+  addProseMirrorPlugins?(): any[]
 
   onCreate?(editor: EditorInstance): void
   onDestroy?(): void

@@ -29,21 +29,27 @@ export class Editor implements EditorInstance {
   constructor(options: EditorOptions = {}) {
     this.options = { editable: true, ...options }
 
+    // Setup extensions first (before schema and commands)
+    this.extensions = this.options.extensions || []
+
     // Create schema with extensions
     this.schema = this.createSchema()
 
-    // Initialize commands
+    // Initialize core commands
     this.commands = createCommands(this)
 
-    // Create editor state
+    // Integrate extension commands
+    this.integrateExtensionCommands()
+
+    // Create editor state (includes plugins from extensions)
     this.state = this.createState()
 
     // Create editor view
     this.element = document.createElement('div')
     this.view = this.createView()
 
-    // Setup extensions
-    this.setupExtensions()
+    // Call extension onCreate hooks
+    this.callExtensionHooks()
 
     // Emit create event
     if (this.options.onCreate) {
@@ -65,19 +71,30 @@ export class Editor implements EditorInstance {
       'Tab': sinkListItem(this.schema.nodes.list_item)
     })
 
+    // Collect plugins from extensions
+    const extensionPlugins = this.collectExtensionPlugins()
+
+    // Collect keyboard shortcuts from extensions
+    const extensionShortcuts = this.collectExtensionShortcuts()
+
+    // Build plugin array
+    const plugins = [
+      history(),
+      listKeymap,
+      keymap(baseKeymap),
+      keymap({
+        'Mod-z': undo,
+        'Mod-y': redo,
+        'Mod-Shift-z': redo,
+        ...extensionShortcuts
+      }),
+      ...extensionPlugins
+    ]
+
     return EditorState.create({
       doc,
       schema: this.schema,
-      plugins: [
-        history(),
-        listKeymap,
-        keymap(baseKeymap),
-        keymap({
-          'Mod-z': undo,
-          'Mod-y': redo,
-          'Mod-Shift-z': redo,
-        }),
-      ]
+      plugins
     })
   }
 
@@ -134,12 +151,92 @@ export class Editor implements EditorInstance {
     return nodeViews
   }
 
-  private setupExtensions() {
-    this.extensions = this.options.extensions || []
+  private integrateExtensionCommands() {
+    // Collect and merge commands from extensions
+    for (const extension of this.extensions) {
+      if (extension.addCommands) {
+        const extensionCommands = extension.addCommands()
+
+        // Create command wrappers that provide the correct context
+        for (const [commandName, commandFactory] of Object.entries(extensionCommands)) {
+          // Wrap the command to provide proper editor context
+          (this.commands as any)[commandName] = (...args: any[]) => {
+            const commandProps = {
+              editor: this,
+              commands: this.commands,
+              tr: this.state.tr,
+              dispatch: (tr: Transaction) => this.view.dispatch(tr),
+              state: this.state,
+              view: this.view
+            }
+
+            try {
+              return commandFactory(...args)(commandProps)
+            } catch (error) {
+              console.warn(`Extension command '${commandName}' failed:`, error)
+              return false
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private collectExtensionPlugins() {
+    const plugins: any[] = []
 
     for (const extension of this.extensions) {
+      if (extension.addProseMirrorPlugins) {
+        try {
+          const extensionPlugins = extension.addProseMirrorPlugins()
+          if (Array.isArray(extensionPlugins)) {
+            plugins.push(...extensionPlugins)
+          }
+        } catch (error) {
+          console.warn(`Failed to load plugins from extension '${extension.name}':`, error)
+        }
+      }
+    }
+
+    return plugins
+  }
+
+  private collectExtensionShortcuts() {
+    const shortcuts: Record<string, () => boolean> = {}
+
+    for (const extension of this.extensions) {
+      if (extension.addKeyboardShortcuts) {
+        try {
+          const extensionShortcuts = extension.addKeyboardShortcuts()
+
+          // Wrap shortcuts to have access to editor
+          for (const [key, handler] of Object.entries(extensionShortcuts)) {
+            shortcuts[key] = () => {
+              try {
+                return handler()
+              } catch (error) {
+                console.warn(`Extension shortcut '${key}' failed:`, error)
+                return false
+              }
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to load shortcuts from extension '${extension.name}':`, error)
+        }
+      }
+    }
+
+    return shortcuts
+  }
+
+  private callExtensionHooks() {
+    for (const extension of this.extensions) {
       if (extension.onCreate) {
-        extension.onCreate(this)
+        try {
+          extension.onCreate(this)
+        } catch (error) {
+          console.warn(`Extension onCreate hook failed for '${extension.name}':`, error)
+        }
       }
     }
   }
