@@ -8,11 +8,7 @@ export { default as FontSelector } from '@/components/FontSelector.vue'
 export { Editor } from '@/core/Editor'
 
 // Composables
-export {
-  useTextEditor,
-  useEditorCommands,
-  useEditorState
-} from '@/composables/useTextEditor'
+export { useTextEditor } from '@/composables/useTextEditor'
 
 // Extensions
 export {
@@ -37,7 +33,6 @@ export type {
   EditorInstance,
   EditorSelection,
   Extension,
-  Commands,
   Command,
   CommandProps,
   ChainedCommands,

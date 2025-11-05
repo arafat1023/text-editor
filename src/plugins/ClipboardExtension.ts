@@ -1,6 +1,4 @@
 import type { Extension } from '@/types'
-// import { keymap } from 'prosemirror-keymap'
-// import { selectAll } from 'prosemirror-commands'
 import { EditorView } from 'prosemirror-view'
 import { Slice, Fragment } from 'prosemirror-model'
 import { Plugin, PluginKey, AllSelection } from 'prosemirror-state'
@@ -101,8 +99,6 @@ export const ClipboardExtension: Extension = {
     ]
   }
 }
-
-// Removed unused command functions - logic is now in addCommands()
 
 async function copyToClipboard(view: EditorView, selection: any) {
   try {
