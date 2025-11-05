@@ -253,10 +253,14 @@ watch(() => props.modelValue, (newValue) => {
 
 // Watch for editable changes
 watch(() => props.editable, (newValue) => {
-  if (editor.value) {
+  if (editor.value && editor.value.view) {
     // Update editable state - editable is a function in ProseMirror
-    const view = editor.value.view as any
-    view.props = { ...view.props, editable: () => newValue }
+    const view = editor.value.view
+    const currentProps = view.props || {}
+    view.setProps({
+      ...currentProps,
+      editable: () => newValue
+    })
   }
 })
 

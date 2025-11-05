@@ -45,12 +45,18 @@ export const ImageExtension: Extension = {
 
         // Validate file
         if (!opts.allowedTypes!.includes(file.type)) {
-          console.error('Invalid file type:', file.type)
+          const error = `Invalid file type: ${file.type}. Allowed types: ${opts.allowedTypes!.join(', ')}`
+          console.error(error)
+          alert(error) // User feedback
           return false
         }
 
         if (file.size > opts.maxSize!) {
-          console.error('File too large:', file.size, 'Max:', opts.maxSize)
+          const maxSizeMB = (opts.maxSize! / 1024 / 1024).toFixed(2)
+          const fileSizeMB = (file.size / 1024 / 1024).toFixed(2)
+          const error = `File too large: ${fileSizeMB}MB exceeds maximum allowed size of ${maxSizeMB}MB`
+          console.error(error)
+          alert(error) // User feedback
           return false
         }
 
@@ -67,7 +73,9 @@ export const ImageExtension: Extension = {
               editor.commands.updateImage(opts.placeholder!, url, file.name)
             })
             .catch(error => {
-              console.error('Upload failed:', error)
+              const errorMsg = `Upload failed: ${error.message || 'Unknown error'}`
+              console.error(errorMsg, error)
+              alert(errorMsg) // User feedback
               editor.commands.removeImage(opts.placeholder!)
             })
         } else {
@@ -80,7 +88,9 @@ export const ImageExtension: Extension = {
             }
           }
           reader.onerror = () => {
-            console.error('Failed to read file')
+            const error = 'Failed to read file. Please try again.'
+            console.error(error)
+            alert(error) // User feedback
             editor.commands.removeImage(opts.placeholder!)
           }
           reader.readAsDataURL(file)

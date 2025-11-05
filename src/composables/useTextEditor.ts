@@ -93,12 +93,12 @@ export function useTextEditor(options: EditorOptions = {}): UseTextEditorReturn 
     }
   }
 
-  // Mount editor to DOM element (commented out - not used)
-  // const mount = (element: HTMLElement) => {
-  //   if (editor.value) {
-  //     editor.value.mount(element)
-  //   }
-  // }
+  // Mount editor to DOM element
+  const mount = (element: HTMLElement) => {
+    if (editor.value) {
+      editor.value.mount(element)
+    }
+  }
 
   // Helper methods
   const getHTML = () => editor.value?.getHTML() || ''
@@ -139,6 +139,8 @@ export function useTextEditor(options: EditorOptions = {}): UseTextEditorReturn 
     characterCount,
 
     // Methods
+    mount,
+    createEditor,
     destroyEditor,
     getHTML,
     getJSON,
