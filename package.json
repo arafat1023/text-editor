@@ -1,6 +1,6 @@
 {
   "name": "@text-editor/vue",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "A feature-rich WYSIWYG text editor for Vue 3 with TypeScript support, similar to TinyMCE",
   "type": "module",
   "main": "./dist/index.js",
