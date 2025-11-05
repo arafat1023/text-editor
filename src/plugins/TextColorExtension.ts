@@ -1,6 +1,6 @@
-import type { Extension } from '@/types'
+import type { Extension } from "@/types";
 
 export const TextColorExtension: Extension = {
-  name: 'textColor',
-  type: 'mark'
-}
+  name: "textColor",
+  type: "mark",
+};

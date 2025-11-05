@@ -1,6 +1,6 @@
-import type { Extension } from '@/types'
+import type { Extension } from "@/types";
 
 export const HeadingExtension: Extension = {
-  name: 'heading',
-  type: 'node'
-}
+  name: "heading",
+  type: "node",
+};

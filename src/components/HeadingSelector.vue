@@ -3,7 +3,7 @@
     <button
       :class="[
         'heading-selector__trigger',
-        { 'heading-selector__trigger--active': isOpen }
+        { 'heading-selector__trigger--active': isOpen },
       ]"
       @click="toggleSelector"
     >
@@ -11,17 +11,13 @@
       <span class="heading-selector__arrow">▼</span>
     </button>
 
-    <div
-      v-if="isOpen"
-      class="heading-selector__dropdown"
-      @click.stop
-    >
+    <div v-if="isOpen" class="heading-selector__dropdown" @click.stop>
       <div
         v-for="option in headingOptions"
         :key="option.value ?? 'paragraph'"
         :class="[
           'heading-selector__option',
-          { 'heading-selector__option--active': modelValue === option.value }
+          { 'heading-selector__option--active': modelValue === option.value },
         ]"
         :style="{ fontSize: option.fontSize, fontWeight: option.fontWeight }"
         @click="selectOption(option.value)"
@@ -41,86 +37,89 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 interface HeadingOption {
-  label: string
-  value: number | null
-  fontSize: string
-  fontWeight: string
+  label: string;
+  value: number | null;
+  fontSize: string;
+  fontWeight: string;
 }
 
 // Props
-const props = withDefaults(defineProps<{
-  modelValue?: number | null
-  placeholder?: string
-  showRemove?: boolean
-}>(), {
-  placeholder: 'Paragraph',
-  showRemove: true
-})
+const props = withDefaults(
+  defineProps<{
+    modelValue?: number | null;
+    placeholder?: string;
+    showRemove?: boolean;
+  }>(),
+  {
+    placeholder: "Paragraph",
+    showRemove: true,
+  },
+);
 
 // Heading options with visual styling
 const headingOptions: HeadingOption[] = [
-  { label: 'Paragraph', value: null, fontSize: '14px', fontWeight: 'normal' },
-  { label: 'Heading 1', value: 1, fontSize: '32px', fontWeight: 'bold' },
-  { label: 'Heading 2', value: 2, fontSize: '24px', fontWeight: 'bold' },
-  { label: 'Heading 3', value: 3, fontSize: '20px', fontWeight: 'bold' },
-  { label: 'Heading 4', value: 4, fontSize: '18px', fontWeight: 'bold' },
-  { label: 'Heading 5', value: 5, fontSize: '16px', fontWeight: 'bold' },
-  { label: 'Heading 6', value: 6, fontSize: '14px', fontWeight: 'bold' }
-]
+  { label: "Paragraph", value: null, fontSize: "14px", fontWeight: "normal" },
+  { label: "Heading 1", value: 1, fontSize: "32px", fontWeight: "bold" },
+  { label: "Heading 2", value: 2, fontSize: "24px", fontWeight: "bold" },
+  { label: "Heading 3", value: 3, fontSize: "20px", fontWeight: "bold" },
+  { label: "Heading 4", value: 4, fontSize: "18px", fontWeight: "bold" },
+  { label: "Heading 5", value: 5, fontSize: "16px", fontWeight: "bold" },
+  { label: "Heading 6", value: 6, fontSize: "14px", fontWeight: "bold" },
+];
 
 // Emits
 const emit = defineEmits<{
-  'update:modelValue': [value: number | null]
-  'change': [value: number | null]
-}>()
+  "update:modelValue": [value: number | null];
+  change: [value: number | null];
+}>();
 
 // State
-const isOpen = ref(false)
+const isOpen = ref(false);
 
 // Computed
 const currentDisplayValue = computed(() => {
   if (props.modelValue === null || props.modelValue === undefined) {
-    return props.placeholder
+    return props.placeholder;
   }
 
-  const option = headingOptions.find(opt => opt.value === props.modelValue)
-  return option ? option.label : `Heading ${props.modelValue}`
-})
+  const option = headingOptions.find((opt) => opt.value === props.modelValue);
+  return option ? option.label : `Heading ${props.modelValue}`;
+});
 
 // Methods
 const toggleSelector = () => {
-  isOpen.value = !isOpen.value
-}
+  isOpen.value = !isOpen.value;
+};
 
 const selectOption = (value: number | null) => {
-  emit('update:modelValue', value)
-  emit('change', value)
-  isOpen.value = false
-}
+  emit("update:modelValue", value);
+  emit("change", value);
+  isOpen.value = false;
+};
 
 const removeSelection = () => {
-  emit('update:modelValue', null)
-  emit('change', null)
-  isOpen.value = false
-}
+  emit("update:modelValue", null);
+  emit("change", null);
+  isOpen.value = false;
+};
 
 const closeSelector = (event: Event) => {
-  if (!((event.target as Element)?.closest('.heading-selector'))) {
-    isOpen.value = false
+  if (!(event.target as Element)?.closest(".heading-selector")) {
+    isOpen.value = false;
   }
-}
+};
 
 // Lifecycle
 onMounted(() => {
-  document.addEventListener('click', closeSelector)
-})
+  document.addEventListener("click", closeSelector);
+});
 
 onUnmounted(() => {
-  document.removeEventListener('click', closeSelector)
-})
+  document.removeEventListener("click", closeSelector);
+});
 </script>
 
 <style scoped>

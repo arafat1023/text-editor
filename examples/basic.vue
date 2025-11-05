@@ -32,49 +32,52 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { TextEditor, useTextEditor, FormattingExtensions } from '../src'
+import { ref, onMounted } from "vue";
+import { TextEditor, useTextEditor, FormattingExtensions } from "../src";
 
 // Basic editor with component
-const content = ref('<p>Hello <strong>world</strong>! This is a <em>rich text editor</em> for Vue 3.</p>')
+const content = ref(
+  "<p>Hello <strong>world</strong>! This is a <em>rich text editor</em> for Vue 3.</p>",
+);
 
 const editorOptions = {
-  placeholder: 'Start typing...',
-  extensions: FormattingExtensions
-}
+  placeholder: "Start typing...",
+  extensions: FormattingExtensions,
+};
 
 const onEditorCreate = ({ editor }: any) => {
-  console.log('Editor created:', editor)
-}
+  console.log("Editor created:", editor);
+};
 
 const onEditorUpdate = ({ editor }: any) => {
-  console.log('Editor updated:', editor.getHTML())
-}
+  console.log("Editor updated:", editor.getHTML());
+};
 
 // Composable editor
-const composableEditorRef = ref<HTMLElement>()
+const composableEditorRef = ref<HTMLElement>();
 const {
   editor: composableEditor,
   isReady,
   mount,
   commands: composableCommands,
-  getHTML: getComposableHTML
+  getHTML: getComposableHTML,
 } = useTextEditor({
-  content: '<p>This editor uses the <strong>useTextEditor</strong> composable!</p>',
-  extensions: FormattingExtensions
-})
+  content:
+    "<p>This editor uses the <strong>useTextEditor</strong> composable!</p>",
+  extensions: FormattingExtensions,
+});
 
 const getComposableContent = () => {
-  const html = getComposableHTML()
-  console.log('Composable editor content:', html)
-  alert(html)
-}
+  const html = getComposableHTML();
+  console.log("Composable editor content:", html);
+  alert(html);
+};
 
 onMounted(() => {
   if (composableEditorRef.value && composableEditor.value) {
-    mount(composableEditorRef.value)
+    mount(composableEditorRef.value);
   }
-})
+});
 </script>
 
 <style scoped>
@@ -82,7 +85,8 @@ onMounted(() => {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .demo-section {

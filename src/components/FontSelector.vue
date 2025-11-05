@@ -3,7 +3,7 @@
     <button
       :class="[
         'font-selector__trigger',
-        { 'font-selector__trigger--active': isOpen }
+        { 'font-selector__trigger--active': isOpen },
       ]"
       @click="toggleSelector"
     >
@@ -11,19 +11,19 @@
       <span class="font-selector__arrow">▼</span>
     </button>
 
-    <div
-      v-if="isOpen"
-      class="font-selector__dropdown"
-      @click.stop
-    >
+    <div v-if="isOpen" class="font-selector__dropdown" @click.stop>
       <div
         v-for="option in options"
         :key="option.value"
         :class="[
           'font-selector__option',
-          { 'font-selector__option--active': modelValue === option.value }
+          { 'font-selector__option--active': modelValue === option.value },
         ]"
-        :style="type === 'family' ? { fontFamily: option.value } : { fontSize: option.value }"
+        :style="
+          type === 'family'
+            ? { fontFamily: option.value }
+            : { fontSize: option.value }
+        "
         @click="selectOption(option.value)"
       >
         {{ option.label }}
@@ -34,116 +34,119 @@
         class="font-selector__remove"
         @click="removeSelection"
       >
-        Remove {{ type === 'family' ? 'Font Family' : 'Font Size' }}
+        Remove {{ type === "family" ? "Font Family" : "Font Size" }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 interface FontOption {
-  label: string
-  value: string
+  label: string;
+  value: string;
 }
 
 // Props
-const props = withDefaults(defineProps<{
-  modelValue?: string
-  type: 'family' | 'size'
-  options?: FontOption[]
-  placeholder?: string
-  showRemove?: boolean
-}>(), {
-  placeholder: 'Select font',
-  showRemove: true,
-  options: () => []
-})
+const props = withDefaults(
+  defineProps<{
+    modelValue?: string;
+    type: "family" | "size";
+    options?: FontOption[];
+    placeholder?: string;
+    showRemove?: boolean;
+  }>(),
+  {
+    placeholder: "Select font",
+    showRemove: true,
+    options: () => [],
+  },
+);
 
 // Default options
 const defaultFamilyOptions: FontOption[] = [
-  { label: 'Arial', value: 'Arial, sans-serif' },
-  { label: 'Helvetica', value: 'Helvetica, sans-serif' },
-  { label: 'Times New Roman', value: 'Times New Roman, serif' },
-  { label: 'Georgia', value: 'Georgia, serif' },
-  { label: 'Courier New', value: 'Courier New, monospace' },
-  { label: 'Verdana', value: 'Verdana, sans-serif' },
-  { label: 'Trebuchet MS', value: 'Trebuchet MS, sans-serif' },
-  { label: 'Impact', value: 'Impact, sans-serif' }
-]
+  { label: "Arial", value: "Arial, sans-serif" },
+  { label: "Helvetica", value: "Helvetica, sans-serif" },
+  { label: "Times New Roman", value: "Times New Roman, serif" },
+  { label: "Georgia", value: "Georgia, serif" },
+  { label: "Courier New", value: "Courier New, monospace" },
+  { label: "Verdana", value: "Verdana, sans-serif" },
+  { label: "Trebuchet MS", value: "Trebuchet MS, sans-serif" },
+  { label: "Impact", value: "Impact, sans-serif" },
+];
 
 const defaultSizeOptions: FontOption[] = [
-  { label: '8px', value: '8px' },
-  { label: '9px', value: '9px' },
-  { label: '10px', value: '10px' },
-  { label: '11px', value: '11px' },
-  { label: '12px', value: '12px' },
-  { label: '14px', value: '14px' },
-  { label: '16px', value: '16px' },
-  { label: '18px', value: '18px' },
-  { label: '20px', value: '20px' },
-  { label: '24px', value: '24px' },
-  { label: '28px', value: '28px' },
-  { label: '32px', value: '32px' },
-  { label: '36px', value: '36px' },
-  { label: '48px', value: '48px' },
-  { label: '72px', value: '72px' }
-]
+  { label: "8px", value: "8px" },
+  { label: "9px", value: "9px" },
+  { label: "10px", value: "10px" },
+  { label: "11px", value: "11px" },
+  { label: "12px", value: "12px" },
+  { label: "14px", value: "14px" },
+  { label: "16px", value: "16px" },
+  { label: "18px", value: "18px" },
+  { label: "20px", value: "20px" },
+  { label: "24px", value: "24px" },
+  { label: "28px", value: "28px" },
+  { label: "32px", value: "32px" },
+  { label: "36px", value: "36px" },
+  { label: "48px", value: "48px" },
+  { label: "72px", value: "72px" },
+];
 
 // Emits
 const emit = defineEmits<{
-  'update:modelValue': [value: string | null]
-  'change': [value: string | null]
-}>()
+  "update:modelValue": [value: string | null];
+  change: [value: string | null];
+}>();
 
 // State
-const isOpen = ref(false)
+const isOpen = ref(false);
 
 // Computed
 const options = computed(() => {
-  if (props.options.length > 0) return props.options
-  return props.type === 'family' ? defaultFamilyOptions : defaultSizeOptions
-})
+  if (props.options.length > 0) return props.options;
+  return props.type === "family" ? defaultFamilyOptions : defaultSizeOptions;
+});
 
 const currentDisplayValue = computed(() => {
-  if (!props.modelValue) return props.placeholder
+  if (!props.modelValue) return props.placeholder;
 
-  const option = options.value.find(opt => opt.value === props.modelValue)
-  return option ? option.label : props.modelValue
-})
+  const option = options.value.find((opt) => opt.value === props.modelValue);
+  return option ? option.label : props.modelValue;
+});
 
 // Methods
 const toggleSelector = () => {
-  isOpen.value = !isOpen.value
-}
+  isOpen.value = !isOpen.value;
+};
 
 const selectOption = (value: string) => {
-  emit('update:modelValue', value)
-  emit('change', value)
-  isOpen.value = false
-}
+  emit("update:modelValue", value);
+  emit("change", value);
+  isOpen.value = false;
+};
 
 const removeSelection = () => {
-  emit('update:modelValue', null)
-  emit('change', null)
-  isOpen.value = false
-}
+  emit("update:modelValue", null);
+  emit("change", null);
+  isOpen.value = false;
+};
 
 const closeSelector = (event: Event) => {
-  if (!((event.target as Element)?.closest('.font-selector'))) {
-    isOpen.value = false
+  if (!(event.target as Element)?.closest(".font-selector")) {
+    isOpen.value = false;
   }
-}
+};
 
 // Lifecycle
 onMounted(() => {
-  document.addEventListener('click', closeSelector)
-})
+  document.addEventListener("click", closeSelector);
+});
 
 onUnmounted(() => {
-  document.removeEventListener('click', closeSelector)
-})
+  document.removeEventListener("click", closeSelector);
+});
 </script>
 
 <style scoped>

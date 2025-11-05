@@ -1,6 +1,6 @@
-import type { Extension } from '@/types'
+import type { Extension } from "@/types";
 
 export const UnderlineExtension: Extension = {
-  name: 'underline',
-  type: 'mark'
-}
+  name: "underline",
+  type: "mark",
+};

@@ -1,6 +1,6 @@
-import type { Extension } from '@/types'
+import type { Extension } from "@/types";
 
 export const BlockquoteExtension: Extension = {
-  name: 'blockquote',
-  type: 'node'
-}
+  name: "blockquote",
+  type: "node",
+};

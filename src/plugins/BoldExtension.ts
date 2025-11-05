@@ -1,6 +1,6 @@
-import type { Extension } from '@/types'
+import type { Extension } from "@/types";
 
 export const BoldExtension: Extension = {
-  name: 'bold',
-  type: 'mark'
-}
+  name: "bold",
+  type: "mark",
+};

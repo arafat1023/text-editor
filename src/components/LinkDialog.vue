@@ -1,28 +1,18 @@
 <template>
-  <div
-    v-if="isOpen"
-    class="link-dialog-overlay"
-    @click.self="close"
-  >
+  <div v-if="isOpen" class="link-dialog-overlay" @click.self="close">
     <div class="link-dialog">
       <div class="link-dialog__header">
         <h3 class="link-dialog__title">
-          {{ isEditing ? 'Edit Link' : 'Insert Link' }}
+          {{ isEditing ? "Edit Link" : "Insert Link" }}
         </h3>
-        <button
-          class="link-dialog__close"
-          @click="close"
-          type="button"
-        >
+        <button class="link-dialog__close" type="button" @click="close">
           ×
         </button>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="link-dialog__form">
+      <form class="link-dialog__form" @submit.prevent="handleSubmit">
         <div class="link-dialog__field">
-          <label for="link-url" class="link-dialog__label">
-            URL *
-          </label>
+          <label for="link-url" class="link-dialog__label"> URL * </label>
           <input
             id="link-url"
             ref="urlInput"
@@ -32,7 +22,7 @@
             :class="{ 'link-dialog__input--error': errors.url }"
             placeholder="https://example.com"
             required
-          >
+          />
           <span v-if="errors.url" class="link-dialog__error">
             {{ errors.url }}
           </span>
@@ -48,7 +38,7 @@
             type="text"
             class="link-dialog__input"
             placeholder="Link text (optional)"
-          >
+          />
           <span class="link-dialog__help">
             Leave empty to use the URL as display text
           </span>
@@ -64,7 +54,7 @@
             type="text"
             class="link-dialog__input"
             placeholder="Link title (optional)"
-          >
+          />
         </div>
 
         <div class="link-dialog__field">
@@ -73,10 +63,8 @@
               v-model="form.openInNewTab"
               type="checkbox"
               class="link-dialog__checkbox-input"
-            >
-            <span class="link-dialog__checkbox-label">
-              Open in new tab
-            </span>
+            />
+            <span class="link-dialog__checkbox-label"> Open in new tab </span>
           </label>
         </div>
 
@@ -103,7 +91,7 @@
             class="link-dialog__button link-dialog__button--primary"
             :disabled="!form.url || !!errors.url"
           >
-            {{ isEditing ? 'Update Link' : 'Insert Link' }}
+            {{ isEditing ? "Update Link" : "Insert Link" }}
           </button>
         </div>
       </form>
@@ -112,130 +100,141 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, nextTick } from 'vue'
-import { normalizeUrl } from '@/plugins/LinkExtension'
+import { ref, reactive, computed, watch, nextTick } from "vue";
+import { normalizeUrl } from "@/plugins/LinkExtension";
 
 interface LinkData {
-  href?: string
-  title?: string
-  target?: string
+  href?: string;
+  title?: string;
+  target?: string;
 }
 
 // Props
 const props = defineProps<{
-  isOpen: boolean
-  linkData?: LinkData | null
-  selectedText?: string
-}>()
+  isOpen: boolean;
+  linkData?: LinkData | null;
+  selectedText?: string;
+}>();
 
 // Emits
 const emit = defineEmits<{
-  'close': []
-  'insert': [data: { url: string; text?: string; title?: string; target?: string }]
-  'update': [data: { url: string; text?: string; title?: string; target?: string }]
-  'remove': []
-}>()
+  close: [];
+  insert: [
+    data: { url: string; text?: string; title?: string; target?: string },
+  ];
+  update: [
+    data: { url: string; text?: string; title?: string; target?: string },
+  ];
+  remove: [];
+}>();
 
 // Form state
 const form = reactive({
-  url: '',
-  text: '',
-  title: '',
-  openInNewTab: false
-})
+  url: "",
+  text: "",
+  title: "",
+  openInNewTab: false,
+});
 
 // Validation errors
 const errors = reactive({
-  url: ''
-})
+  url: "",
+});
 
 // Refs
-const urlInput = ref<HTMLInputElement>()
+const urlInput = ref<HTMLInputElement>();
 
 // Computed
-const isEditing = computed(() => !!props.linkData?.href)
+const isEditing = computed(() => !!props.linkData?.href);
 
 // Validation
 const validateUrl = (url: string): string => {
-  if (!url.trim()) return 'URL is required'
+  if (!url.trim()) return "URL is required";
 
   // Check for basic URL patterns
-  const urlPattern = /^(https?:\/\/)|(www\.)|([a-zA-Z0-9-]+\.[a-zA-Z]{2,})|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/
+  const urlPattern =
+    /^(https?:\/\/)|(www\.)|([a-zA-Z0-9-]+\.[a-zA-Z]{2,})|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
 
   if (!urlPattern.test(url)) {
-    return 'Please enter a valid URL'
+    return "Please enter a valid URL";
   }
 
-  return ''
-}
+  return "";
+};
 
 // Watch for URL changes to validate
-watch(() => form.url, (newUrl) => {
-  errors.url = validateUrl(newUrl)
-})
+watch(
+  () => form.url,
+  (newUrl) => {
+    errors.url = validateUrl(newUrl);
+  },
+);
 
 // Watch for dialog open/close
-watch(() => props.isOpen, (isOpen) => {
-  if (isOpen) {
-    // Reset form
-    if (props.linkData) {
-      // Editing existing link
-      form.url = props.linkData.href || ''
-      form.title = props.linkData.title || ''
-      form.openInNewTab = props.linkData.target === '_blank'
-      form.text = props.selectedText || ''
-    } else {
-      // New link
-      form.url = ''
-      form.text = props.selectedText || ''
-      form.title = ''
-      form.openInNewTab = false
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (isOpen) {
+      // Reset form
+      if (props.linkData) {
+        // Editing existing link
+        form.url = props.linkData.href || "";
+        form.title = props.linkData.title || "";
+        form.openInNewTab = props.linkData.target === "_blank";
+        form.text = props.selectedText || "";
+      } else {
+        // New link
+        form.url = "";
+        form.text = props.selectedText || "";
+        form.title = "";
+        form.openInNewTab = false;
+      }
+
+      // Clear errors
+      errors.url = "";
+
+      // Focus URL input
+      nextTick(() => {
+        urlInput.value?.focus();
+        urlInput.value?.select();
+      });
     }
-
-    // Clear errors
-    errors.url = ''
-
-    // Focus URL input
-    nextTick(() => {
-      urlInput.value?.focus()
-      urlInput.value?.select()
-    })
-  }
-})
+  },
+);
 
 // Methods
 const close = () => {
-  emit('close')
-}
+  emit("close");
+};
 
 const handleSubmit = () => {
   // Validate
-  errors.url = validateUrl(form.url)
-  if (errors.url) return
+  errors.url = validateUrl(form.url);
+  if (errors.url) return;
 
   // Normalize URL
-  const normalizedUrl = normalizeUrl(form.url)
+  const normalizedUrl = normalizeUrl(form.url);
 
   const linkData = {
     url: normalizedUrl,
     text: form.text || undefined,
     title: form.title || undefined,
-    target: form.openInNewTab ? '_blank' : undefined
-  }
+    target: form.openInNewTab ? "_blank" : undefined,
+  };
 
   if (isEditing.value) {
-    emit('update', linkData)
+    emit("update", linkData);
   } else {
-    emit('insert', linkData)
+    emit("insert", linkData);
   }
 
-  close()
-}
+  close();
+};
 
 const handleRemove = () => {
-  emit('remove')
-  close()
-}
+  emit("remove");
+  close();
+};
 </script>
 
 <style scoped>
@@ -256,7 +255,9 @@ const handleRemove = () => {
 .link-dialog {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 500px;
   width: 90vw;
   max-height: 80vh;
@@ -316,7 +317,9 @@ const handleRemove = () => {
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 14px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .link-dialog__input:focus {

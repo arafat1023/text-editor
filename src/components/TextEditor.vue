@@ -1,12 +1,9 @@
 <template>
   <div class="text-editor" :class="editorClass">
-    <div
-      v-if="showToolbar"
-      class="text-editor__toolbar"
-    >
+    <div v-if="showToolbar" class="text-editor__toolbar">
       <EditorToolbar
         v-if="editor"
-        :editor="editor"
+        :editor="editor as any"
         :items="toolbarItems"
       />
     </div>
@@ -20,19 +17,14 @@
 
     <!-- Context Menu -->
     <ContextMenu
-      :editor="editor"
+      :editor="editor as any"
       :is-visible="contextMenu.isVisible"
       :position="contextMenu.position"
       @close="closeContextMenu"
     />
 
-    <div
-      v-if="showStatusBar"
-      class="text-editor__status"
-    >
-      <span class="text-editor__word-count">
-        Words: {{ wordCount }}
-      </span>
+    <div v-if="showStatusBar" class="text-editor__status">
+      <span class="text-editor__word-count"> Words: {{ wordCount }} </span>
       <span class="text-editor__character-count">
         Characters: {{ characterCount }}
       </span>
@@ -41,136 +33,256 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  onMounted,
-  onUnmounted,
-  watch,
-  computed,
-  provide
-} from 'vue'
-import { Editor } from '@/core/Editor'
-import { AllExtensions } from '@/plugins'
-import EditorToolbar from './EditorToolbar.vue'
-import ContextMenu from './ContextMenu.vue'
+import { ref, onMounted, onUnmounted, watch, computed, provide } from "vue";
+import { Editor } from "@/core/Editor";
+import { AllExtensions } from "@/plugins";
+import EditorToolbar from "./EditorToolbar.vue";
+import ContextMenu from "./ContextMenu.vue";
 import type {
   EditorOptions,
   EditorInstance,
   Extension,
-  ToolbarItem
-} from '@/types'
+  ToolbarItem,
+} from "@/types";
 
 // Props
-const props = withDefaults(defineProps<{
-  modelValue?: string
-  options?: Partial<EditorOptions>
-  extensions?: Extension[]
-  editable?: boolean
-  placeholder?: string
-  showToolbar?: boolean
-  showStatusBar?: boolean
-  toolbarItems?: ToolbarItem[]
-  editorClass?: string
-  contentClass?: string
-}>(), {
-  modelValue: '',
-  editable: true,
-  showToolbar: true,
-  showStatusBar: true,
-  toolbarItems: () => [
-    // Text formatting group
-    {
-      type: 'group',
-      items: [
-        { type: 'button', name: 'bold', icon: 'bold', title: 'Bold (Ctrl+B)', command: 'bold' },
-        { type: 'button', name: 'italic', icon: 'italic', title: 'Italic (Ctrl+I)', command: 'italic' },
-        { type: 'button', name: 'underline', icon: 'underline', title: 'Underline (Ctrl+U)', command: 'underline' },
-        { type: 'button', name: 'strike', icon: 'strike', title: 'Strikethrough', command: 'strike' }
-      ]
-    },
-    { type: 'separator' },
-    // Color formatting
-    { type: 'color', title: 'Text Color', command: 'textColor' },
-    { type: 'color', title: 'Highlight Color', command: 'backgroundColor' },
-    { type: 'separator' },
-    // Font formatting
-    { type: 'font', title: 'Font Family', command: 'fontFamily', fontType: 'family' },
-    { type: 'font', title: 'Font Size', command: 'fontSize', fontType: 'size' },
-    { type: 'separator' },
-    // Script formatting
-    {
-      type: 'group',
-      items: [
-        { type: 'button', name: 'superscript', icon: 'superscript', title: 'Superscript', command: 'superscript' },
-        { type: 'button', name: 'subscript', icon: 'subscript', title: 'Subscript', command: 'subscript' },
-        { type: 'button', name: 'code', icon: 'code', title: 'Inline Code (Ctrl+E)', command: 'code' }
-      ]
-    },
-    { type: 'separator' },
-    // Links
-    { type: 'link', name: 'link', icon: 'link', title: 'Insert/Edit Link (Ctrl+K)', command: 'toggleLink' },
-    { type: 'separator' },
-    // Block formatting
-    { type: 'heading', title: 'Heading', command: 'setHeading' },
-    { type: 'button', name: 'blockquote', icon: 'blockquote', title: 'Blockquote', command: 'toggleBlockquote' },
-    { type: 'button', name: 'codeBlock', icon: 'code-block', title: 'Code Block', command: 'toggleCodeBlock' },
-    { type: 'button', name: 'horizontalRule', icon: 'hr', title: 'Insert Divider', command: 'insertHorizontalRule' },
-    { type: 'separator' },
-    // Lists
-    { type: 'button', name: 'bulletList', icon: 'list-ul', title: 'Bullet List', command: 'bulletList' },
-    { type: 'button', name: 'orderedList', icon: 'list-ol', title: 'Ordered List', command: 'orderedList' },
-    { type: 'separator' },
-    // History
-    { type: 'button', name: 'undo', icon: 'undo', title: 'Undo (Ctrl+Z)', command: 'undo' },
-    { type: 'button', name: 'redo', icon: 'redo', title: 'Redo (Ctrl+Y)', command: 'redo' },
-    { type: 'separator' },
-    // Clipboard
-    {
-      type: 'group',
-      items: [
-        { type: 'button', name: 'copy', icon: 'copy', title: 'Copy (Ctrl+C)', command: 'copy' },
-        { type: 'button', name: 'cut', icon: 'cut', title: 'Cut (Ctrl+X)', command: 'cut' },
-        { type: 'button', name: 'paste', icon: 'paste', title: 'Paste (Ctrl+V)', command: 'paste' },
-        { type: 'button', name: 'pasteAsText', icon: 'paste-text', title: 'Paste as Plain Text (Ctrl+Shift+V)', command: 'pasteAsPlainText' }
-      ]
-    }
-  ]
-})
+const props = withDefaults(
+  defineProps<{
+    modelValue?: string;
+    options?: Partial<EditorOptions>;
+    extensions?: Extension[];
+    editable?: boolean;
+    placeholder?: string;
+    showToolbar?: boolean;
+    showStatusBar?: boolean;
+    toolbarItems?: ToolbarItem[];
+    editorClass?: string;
+    contentClass?: string;
+  }>(),
+  {
+    modelValue: "",
+    editable: true,
+    showToolbar: true,
+    showStatusBar: true,
+    toolbarItems: () => [
+      // Text formatting group
+      {
+        type: "group",
+        items: [
+          {
+            type: "button",
+            name: "bold",
+            icon: "bold",
+            title: "Bold (Ctrl+B)",
+            command: "bold",
+          },
+          {
+            type: "button",
+            name: "italic",
+            icon: "italic",
+            title: "Italic (Ctrl+I)",
+            command: "italic",
+          },
+          {
+            type: "button",
+            name: "underline",
+            icon: "underline",
+            title: "Underline (Ctrl+U)",
+            command: "underline",
+          },
+          {
+            type: "button",
+            name: "strike",
+            icon: "strike",
+            title: "Strikethrough",
+            command: "strike",
+          },
+        ],
+      },
+      { type: "separator" },
+      // Color formatting
+      { type: "color", title: "Text Color", command: "textColor" },
+      { type: "color", title: "Highlight Color", command: "backgroundColor" },
+      { type: "separator" },
+      // Font formatting
+      {
+        type: "font",
+        title: "Font Family",
+        command: "fontFamily",
+        fontType: "family",
+      },
+      {
+        type: "font",
+        title: "Font Size",
+        command: "fontSize",
+        fontType: "size",
+      },
+      { type: "separator" },
+      // Script formatting
+      {
+        type: "group",
+        items: [
+          {
+            type: "button",
+            name: "superscript",
+            icon: "superscript",
+            title: "Superscript",
+            command: "superscript",
+          },
+          {
+            type: "button",
+            name: "subscript",
+            icon: "subscript",
+            title: "Subscript",
+            command: "subscript",
+          },
+          {
+            type: "button",
+            name: "code",
+            icon: "code",
+            title: "Inline Code (Ctrl+E)",
+            command: "code",
+          },
+        ],
+      },
+      { type: "separator" },
+      // Links
+      {
+        type: "link",
+        name: "link",
+        icon: "link",
+        title: "Insert/Edit Link (Ctrl+K)",
+        command: "toggleLink",
+      },
+      { type: "separator" },
+      // Block formatting
+      { type: "heading", title: "Heading", command: "setHeading" },
+      {
+        type: "button",
+        name: "blockquote",
+        icon: "blockquote",
+        title: "Blockquote",
+        command: "toggleBlockquote",
+      },
+      {
+        type: "button",
+        name: "codeBlock",
+        icon: "code-block",
+        title: "Code Block",
+        command: "toggleCodeBlock",
+      },
+      {
+        type: "button",
+        name: "horizontalRule",
+        icon: "hr",
+        title: "Insert Divider",
+        command: "insertHorizontalRule",
+      },
+      { type: "separator" },
+      // Lists
+      {
+        type: "button",
+        name: "bulletList",
+        icon: "list-ul",
+        title: "Bullet List",
+        command: "bulletList",
+      },
+      {
+        type: "button",
+        name: "orderedList",
+        icon: "list-ol",
+        title: "Ordered List",
+        command: "orderedList",
+      },
+      { type: "separator" },
+      // History
+      {
+        type: "button",
+        name: "undo",
+        icon: "undo",
+        title: "Undo (Ctrl+Z)",
+        command: "undo",
+      },
+      {
+        type: "button",
+        name: "redo",
+        icon: "redo",
+        title: "Redo (Ctrl+Y)",
+        command: "redo",
+      },
+      { type: "separator" },
+      // Clipboard
+      {
+        type: "group",
+        items: [
+          {
+            type: "button",
+            name: "copy",
+            icon: "copy",
+            title: "Copy (Ctrl+C)",
+            command: "copy",
+          },
+          {
+            type: "button",
+            name: "cut",
+            icon: "cut",
+            title: "Cut (Ctrl+X)",
+            command: "cut",
+          },
+          {
+            type: "button",
+            name: "paste",
+            icon: "paste",
+            title: "Paste (Ctrl+V)",
+            command: "paste",
+          },
+          {
+            type: "button",
+            name: "pasteAsText",
+            icon: "paste-text",
+            title: "Paste as Plain Text (Ctrl+Shift+V)",
+            command: "pasteAsPlainText",
+          },
+        ],
+      },
+    ],
+  },
+);
 
 // Emits
 const emit = defineEmits<{
-  'update:modelValue': [value: string]
-  'create': [props: { editor: EditorInstance }]
-  'update': [props: { editor: EditorInstance }]
-  'selectionUpdate': [props: { editor: EditorInstance }]
-  'focus': [props: { editor: EditorInstance; event: FocusEvent }]
-  'blur': [props: { editor: EditorInstance; event: FocusEvent }]
-  'destroy': []
-}>()
+  "update:modelValue": [value: string];
+  create: [props: { editor: EditorInstance }];
+  update: [props: { editor: EditorInstance }];
+  selectionUpdate: [props: { editor: EditorInstance }];
+  focus: [props: { editor: EditorInstance; event: FocusEvent }];
+  blur: [props: { editor: EditorInstance; event: FocusEvent }];
+  destroy: [];
+}>();
 
 // Reactive state
-const editorRef = ref<HTMLElement>()
-const editor = ref<EditorInstance | null>(null)
-const isReady = ref(false)
-const isFocused = ref(false)
-const wordCount = ref(0)
-const characterCount = ref(0)
+const editorRef = ref<HTMLElement>();
+const editor = ref<EditorInstance | null>(null);
+const isReady = ref(false);
+const isFocused = ref(false);
+const wordCount = ref(0);
+const characterCount = ref(0);
 
 // Context menu state
 const contextMenu = ref({
   isVisible: false,
-  position: { x: 0, y: 0 }
-})
+  position: { x: 0, y: 0 },
+});
 
 // Computed
 const allExtensions = computed(() => [
   ...AllExtensions,
-  ...(props.extensions || [])
-])
+  ...(props.extensions || []),
+]);
 
 // Create editor instance
 const createEditor = () => {
-  if (!editorRef.value) return
+  if (!editorRef.value) return;
 
   const editorOptions: EditorOptions = {
     content: props.modelValue,
@@ -179,122 +291,129 @@ const createEditor = () => {
     extensions: allExtensions.value,
 
     onCreate: ({ editor }) => {
-      isReady.value = true
-      updateCounts()
-      emit('create', { editor })
+      isReady.value = true;
+      updateCounts();
+      emit("create", { editor });
     },
 
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML()
-      emit('update:modelValue', html)
-      emit('update', { editor })
-      updateCounts()
+      const html = editor.getHTML();
+      emit("update:modelValue", html);
+      emit("update", { editor });
+      updateCounts();
     },
 
     onSelectionUpdate: ({ editor }) => {
-      emit('selectionUpdate', { editor })
+      emit("selectionUpdate", { editor });
     },
 
     onFocus: ({ editor, event }) => {
-      isFocused.value = true
-      emit('focus', { editor, event })
+      isFocused.value = true;
+      emit("focus", { editor, event });
     },
 
     onBlur: ({ editor, event }) => {
-      isFocused.value = false
-      emit('blur', { editor, event })
+      isFocused.value = false;
+      emit("blur", { editor, event });
     },
 
     onDestroy: () => {
-      isReady.value = false
-      emit('destroy')
+      isReady.value = false;
+      emit("destroy");
     },
 
-    ...props.options
-  }
+    ...props.options,
+  };
 
-  const editorInstance = new Editor(editorOptions) as EditorInstance
-  editorInstance.mount(editorRef.value)
-  editor.value = editorInstance
-}
+  const editorInstance = new Editor(editorOptions);
+  editorInstance.mount(editorRef.value);
+  editor.value = editorInstance as unknown as EditorInstance;
+};
 
 // Update word and character counts
 const updateCounts = () => {
-  if (!editor.value) return
+  if (!editor.value) return;
 
-  const text = editor.value.getText()
-  characterCount.value = text.length
-  wordCount.value = text.trim().split(/\s+/).filter((word: string) => word.length > 0).length
-}
+  const text = editor.value.getText();
+  characterCount.value = text.length;
+  wordCount.value = text
+    .trim()
+    .split(/\s+/)
+    .filter((word: string) => word.length > 0).length;
+};
 
 // Context menu methods
 const handleContextMenu = (event: MouseEvent) => {
-  event.preventDefault()
+  event.preventDefault();
 
   contextMenu.value = {
     isVisible: true,
     position: {
       x: event.clientX,
-      y: event.clientY
-    }
-  }
-}
+      y: event.clientY,
+    },
+  };
+};
 
 const closeContextMenu = () => {
-  contextMenu.value.isVisible = false
-}
+  contextMenu.value.isVisible = false;
+};
 
 // Watch for content changes from parent
-watch(() => props.modelValue, (newValue) => {
-  if (editor.value && editor.value.getHTML() !== newValue) {
-    editor.value.setContent(newValue, false)
-  }
-})
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (editor.value && editor.value.getHTML() !== newValue) {
+      editor.value.setContent(newValue, false);
+    }
+  },
+);
 
 // Watch for editable changes
-watch(() => props.editable, (newValue) => {
-  if (editor.value && editor.value.view) {
-    // Update editable state - editable is a function in ProseMirror
-    const view = editor.value.view
-    const currentProps = view.props || {}
-    view.setProps({
-      ...currentProps,
-      editable: () => newValue
-    })
-  }
-})
+watch(
+  () => props.editable,
+  (newValue) => {
+    if (editor.value && editor.value.view) {
+      // Update editable state - editable is a function in ProseMirror
+      const view = editor.value.view;
+      view.setProps({
+        editable: () => newValue,
+      });
+    }
+  },
+);
 
 // Provide editor instance to child components
-provide('editor', editor)
+provide("editor", editor);
 
 // Lifecycle
 onMounted(() => {
-  createEditor()
-})
+  createEditor();
+});
 
 onUnmounted(() => {
   if (editor.value) {
-    editor.value.destroy()
-    editor.value = null
+    editor.value.destroy();
+    editor.value = null;
   }
-})
+});
 
 // Expose editor instance and methods
 defineExpose({
-  editor,
+  editor: editor as any,
   isReady,
   isFocused,
   wordCount,
   characterCount,
   focus: () => editor.value?.focus(),
   blur: () => editor.value?.blur(),
-  getHTML: () => editor.value?.getHTML() || '',
+  getHTML: () => editor.value?.getHTML() || "",
   getJSON: () => editor.value?.getJSON() || {},
-  getText: () => editor.value?.getText() || '',
+  getText: () => editor.value?.getText() || "",
   setContent: (content: string) => editor.value?.setContent(content),
   clearContent: () => editor.value?.commands.clearContent(),
-  isEmpty: () => editor.value?.isEmpty() ?? true
-})
+  isEmpty: () => editor.value?.isEmpty() ?? true,
+});
 </script>
 
 <style scoped>
@@ -302,7 +421,8 @@ defineExpose({
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: white;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .text-editor__toolbar {
@@ -323,7 +443,8 @@ defineExpose({
   min-height: 200px;
 }
 
-.text-editor__content :deep(.ProseMirror p.is-editor-empty:first-child::before) {
+.text-editor__content
+  :deep(.ProseMirror p.is-editor-empty:first-child::before) {
   content: attr(data-placeholder);
   float: left;
   color: #9ca3af;
@@ -388,7 +509,7 @@ defineExpose({
   padding: 1rem;
   margin: 1.5rem 0;
   overflow-x: auto;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 0.875rem;
   line-height: 1.5;
 }
@@ -496,13 +617,17 @@ defineExpose({
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .text-editor__content :deep(.image-wrapper img:hover) {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   transform: translateY(-2px);
 }
 

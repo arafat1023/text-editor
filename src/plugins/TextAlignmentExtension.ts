@@ -1,129 +1,157 @@
-import type { Extension } from '@/types'
+import type { Extension } from "@/types";
 
 export interface TextAlignmentOptions {
-  alignments?: string[]
-  defaultAlignment?: string | null
+  alignments?: string[];
+  defaultAlignment?: string | null;
 }
 
 export const TextAlignmentExtension: Extension = {
-  name: 'textAlignment',
-  type: 'extension',
+  name: "textAlignment",
+  type: "extension",
   priority: 100,
 
   addCommands() {
     return {
-      setTextAlign: (alignment: string | null) => ({ editor, tr }) => {
-        const { selection } = editor.state
-        const { from, to } = selection
+      setTextAlign:
+        (alignment: string | null) =>
+        ({ editor, tr }) => {
+          const { selection } = editor.state;
+          const { from, to } = selection;
 
-        let updated = false
+          let updated = false;
 
-        editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
-          if (node.type.name === 'paragraph' || node.type.name === 'heading') {
-            const newAttrs = { ...node.attrs, textAlign: alignment }
-            tr.setNodeMarkup(pos, null, newAttrs)
-            updated = true
-          }
-        })
+          editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
+            if (
+              node.type.name === "paragraph" ||
+              node.type.name === "heading"
+            ) {
+              const newAttrs = { ...node.attrs, textAlign: alignment };
+              tr.setNodeMarkup(pos, null, newAttrs);
+              updated = true;
+            }
+          });
 
-        return updated
-      },
+          return updated;
+        },
 
-      alignLeft: () => ({ editor, tr }) => {
-        const { selection } = editor.state
-        const { from, to } = selection
+      alignLeft:
+        () =>
+        ({ editor, tr }) => {
+          const { selection } = editor.state;
+          const { from, to } = selection;
 
-        let updated = false
+          let updated = false;
 
-        editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
-          if (node.type.name === 'paragraph' || node.type.name === 'heading') {
-            const newAttrs = { ...node.attrs, textAlign: 'left' }
-            tr.setNodeMarkup(pos, null, newAttrs)
-            updated = true
-          }
-        })
+          editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
+            if (
+              node.type.name === "paragraph" ||
+              node.type.name === "heading"
+            ) {
+              const newAttrs = { ...node.attrs, textAlign: "left" };
+              tr.setNodeMarkup(pos, null, newAttrs);
+              updated = true;
+            }
+          });
 
-        return updated
-      },
+          return updated;
+        },
 
-      alignCenter: () => ({ editor, tr }) => {
-        const { selection } = editor.state
-        const { from, to } = selection
+      alignCenter:
+        () =>
+        ({ editor, tr }) => {
+          const { selection } = editor.state;
+          const { from, to } = selection;
 
-        let updated = false
+          let updated = false;
 
-        editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
-          if (node.type.name === 'paragraph' || node.type.name === 'heading') {
-            const newAttrs = { ...node.attrs, textAlign: 'center' }
-            tr.setNodeMarkup(pos, null, newAttrs)
-            updated = true
-          }
-        })
+          editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
+            if (
+              node.type.name === "paragraph" ||
+              node.type.name === "heading"
+            ) {
+              const newAttrs = { ...node.attrs, textAlign: "center" };
+              tr.setNodeMarkup(pos, null, newAttrs);
+              updated = true;
+            }
+          });
 
-        return updated
-      },
+          return updated;
+        },
 
-      alignRight: () => ({ editor, tr }) => {
-        const { selection } = editor.state
-        const { from, to } = selection
+      alignRight:
+        () =>
+        ({ editor, tr }) => {
+          const { selection } = editor.state;
+          const { from, to } = selection;
 
-        let updated = false
+          let updated = false;
 
-        editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
-          if (node.type.name === 'paragraph' || node.type.name === 'heading') {
-            const newAttrs = { ...node.attrs, textAlign: 'right' }
-            tr.setNodeMarkup(pos, null, newAttrs)
-            updated = true
-          }
-        })
+          editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
+            if (
+              node.type.name === "paragraph" ||
+              node.type.name === "heading"
+            ) {
+              const newAttrs = { ...node.attrs, textAlign: "right" };
+              tr.setNodeMarkup(pos, null, newAttrs);
+              updated = true;
+            }
+          });
 
-        return updated
-      },
+          return updated;
+        },
 
-      alignJustify: () => ({ editor, tr }) => {
-        const { selection } = editor.state
-        const { from, to } = selection
+      alignJustify:
+        () =>
+        ({ editor, tr }) => {
+          const { selection } = editor.state;
+          const { from, to } = selection;
 
-        let updated = false
+          let updated = false;
 
-        editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
-          if (node.type.name === 'paragraph' || node.type.name === 'heading') {
-            const newAttrs = { ...node.attrs, textAlign: 'justify' }
-            tr.setNodeMarkup(pos, null, newAttrs)
-            updated = true
-          }
-        })
+          editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
+            if (
+              node.type.name === "paragraph" ||
+              node.type.name === "heading"
+            ) {
+              const newAttrs = { ...node.attrs, textAlign: "justify" };
+              tr.setNodeMarkup(pos, null, newAttrs);
+              updated = true;
+            }
+          });
 
-        return updated
-      },
+          return updated;
+        },
 
-      unsetTextAlign: () => ({ editor, tr }) => {
-        const { selection } = editor.state
-        const { from, to } = selection
+      unsetTextAlign:
+        () =>
+        ({ editor, tr }) => {
+          const { selection } = editor.state;
+          const { from, to } = selection;
 
-        let updated = false
+          let updated = false;
 
-        editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
-          if (node.type.name === 'paragraph' || node.type.name === 'heading') {
-            const newAttrs = { ...node.attrs, textAlign: null }
-            tr.setNodeMarkup(pos, null, newAttrs)
-            updated = true
-          }
-        })
+          editor.state.doc.nodesBetween(from, to, (node: any, pos: number) => {
+            if (
+              node.type.name === "paragraph" ||
+              node.type.name === "heading"
+            ) {
+              const newAttrs = { ...node.attrs, textAlign: null };
+              tr.setNodeMarkup(pos, null, newAttrs);
+              updated = true;
+            }
+          });
 
-        return updated
-      }
-    }
+          return updated;
+        },
+    };
   },
 
   addKeyboardShortcuts() {
     return {
-      'Mod-Shift-l': () => false, // Will be handled by commands
-      'Mod-Shift-e': () => false, // Will be handled by commands
-      'Mod-Shift-r': () => false, // Will be handled by commands
-      'Mod-Shift-j': () => false  // Will be handled by commands
-    }
+      "Mod-Shift-l": () => false, // Will be handled by commands
+      "Mod-Shift-e": () => false, // Will be handled by commands
+      "Mod-Shift-r": () => false, // Will be handled by commands
+      "Mod-Shift-j": () => false, // Will be handled by commands
+    };
   },
-
-
-}
+};

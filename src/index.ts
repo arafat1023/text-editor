@@ -1,14 +1,14 @@
 // Main component
-export { default as TextEditor } from '@/components/TextEditor.vue'
-export { default as EditorToolbar } from '@/components/EditorToolbar.vue'
-export { default as ColorPicker } from '@/components/ColorPicker.vue'
-export { default as FontSelector } from '@/components/FontSelector.vue'
+export { default as TextEditor } from "@/components/TextEditor.vue";
+export { default as EditorToolbar } from "@/components/EditorToolbar.vue";
+export { default as ColorPicker } from "@/components/ColorPicker.vue";
+export { default as FontSelector } from "@/components/FontSelector.vue";
 
 // Core classes
-export { Editor } from '@/core/Editor'
+export { Editor } from "@/core/Editor";
 
 // Composables
-export { useTextEditor } from '@/composables/useTextEditor'
+export { useTextEditor } from "@/composables/useTextEditor";
 
 // Extensions
 export {
@@ -24,8 +24,8 @@ export {
   FontFamilyExtension,
   FontSizeExtension,
   BasicExtensions,
-  FormattingExtensions
-} from '@/plugins'
+  FormattingExtensions,
+} from "@/plugins";
 
 // Types
 export type {
@@ -42,12 +42,12 @@ export type {
   UseTextEditorReturn,
   EditorEvent,
   EditorEvents,
-  EditorTheme
-} from '@/types'
+  EditorTheme,
+} from "@/types";
 
 // Plugin-specific types
-export type { ImageOptions, ImageUploadError } from '@/plugins/ImageExtension'
+export type { ImageOptions, ImageUploadError } from "@/plugins/ImageExtension";
 
 // Default export for convenience
-import TextEditor from '@/components/TextEditor.vue'
-export default TextEditor
+import TextEditor from "@/components/TextEditor.vue";
+export default TextEditor;

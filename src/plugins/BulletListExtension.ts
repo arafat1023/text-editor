@@ -1,6 +1,6 @@
-import type { Extension } from '@/types'
+import type { Extension } from "@/types";
 
 export const BulletListExtension: Extension = {
-  name: 'bulletList',
-  type: 'node'
-}
+  name: "bulletList",
+  type: "node",
+};

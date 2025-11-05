@@ -51,10 +51,7 @@
     </div>
 
     <div v-if="hasSelection" class="context-menu__section">
-      <button
-        class="context-menu__item"
-        @click="handleSelectAll"
-      >
+      <button class="context-menu__item" @click="handleSelectAll">
         <span class="context-menu__icon">📝</span>
         <span>Select All</span>
         <span class="context-menu__shortcut">Ctrl+A</span>
@@ -64,185 +61,192 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
-import type { EditorInstance } from '@/types'
+import { ref, computed, nextTick, onMounted, onUnmounted, watch } from "vue";
+import type { EditorInstance } from "@/types";
 
 interface ContextMenuProps {
-  editor: EditorInstance | null
-  isVisible: boolean
-  position: { x: number; y: number }
+  editor: EditorInstance | null;
+  isVisible: boolean;
+  position: { x: number; y: number };
 }
 
 // Props
-const props = defineProps<ContextMenuProps>()
+const props = defineProps<ContextMenuProps>();
 
 // Emits
 const emit = defineEmits<{
-  'close': []
-}>()
+  close: [];
+}>();
 
 // State
-const menuRef = ref<HTMLElement>()
+const menuRef = ref<HTMLElement>();
 
 // Computed
 const hasSelection = computed(() => {
-  if (!props.editor) return false
-  const { selection } = props.editor.state
-  return !selection.empty
-})
+  if (!props.editor) return false;
+  const { selection } = props.editor.state;
+  return !selection.empty;
+});
 
 const canCopy = computed(() => {
-  return hasSelection.value && props.editor?.isEditable()
-})
+  return hasSelection.value && props.editor?.isEditable();
+});
 
 const canCut = computed(() => {
-  return hasSelection.value && props.editor?.isEditable()
-})
+  return hasSelection.value && props.editor?.isEditable();
+});
 
 const canPaste = computed(() => {
-  return props.editor?.isEditable() ?? false
-})
+  return props.editor?.isEditable() ?? false;
+});
 
 const menuStyle = computed(() => ({
-  position: 'fixed' as const,
+  position: "fixed" as const,
   left: `${props.position.x}px`,
   top: `${props.position.y}px`,
-  zIndex: 1000
-}))
+  zIndex: 1000,
+}));
 
 // Methods
 const handleCopy = () => {
-  if (!props.editor || !canCopy.value) return
+  if (!props.editor || !canCopy.value) return;
 
   try {
-    props.editor.commands.copy()
-    emit('close')
+    props.editor.commands.copy?.();
+    emit("close");
   } catch (error) {
-    console.warn('Copy failed:', error)
+    console.warn("Copy failed:", error);
   }
-}
+};
 
 const handleCut = () => {
-  if (!props.editor || !canCut.value) return
+  if (!props.editor || !canCut.value) return;
 
   try {
-    props.editor.commands.cut()
-    emit('close')
+    props.editor.commands.cut?.();
+    emit("close");
   } catch (error) {
-    console.warn('Cut failed:', error)
+    console.warn("Cut failed:", error);
   }
-}
+};
 
 const handlePaste = async () => {
-  if (!props.editor || !canPaste.value) return
+  if (!props.editor || !canPaste.value) return;
 
   try {
-    props.editor.commands.paste()
-    emit('close')
+    props.editor.commands.paste?.();
+    emit("close");
   } catch (error) {
-    console.warn('Paste failed:', error)
+    console.warn("Paste failed:", error);
   }
-}
+};
 
 const handlePasteAsText = async () => {
-  if (!props.editor || !canPaste.value) return
+  if (!props.editor || !canPaste.value) return;
 
   try {
-    props.editor.commands.pasteAsPlainText()
-    emit('close')
+    props.editor.commands.pasteAsPlainText?.();
+    emit("close");
   } catch (error) {
-    console.warn('Paste as text failed:', error)
+    console.warn("Paste as text failed:", error);
   }
-}
+};
 
 const handleSelectAll = () => {
-  if (!props.editor) return
+  if (!props.editor) return;
 
   try {
-    props.editor.commands.selectAll()
-    emit('close')
+    props.editor.commands.selectAll();
+    emit("close");
   } catch (error) {
-    console.warn('Select all failed:', error)
+    console.warn("Select all failed:", error);
   }
-}
+};
 
 const handleClickOutside = (event: MouseEvent) => {
   if (menuRef.value && !menuRef.value.contains(event.target as Node)) {
-    emit('close')
+    emit("close");
   }
-}
+};
 
 const handleKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape') {
-    emit('close')
+  if (event.key === "Escape") {
+    emit("close");
   }
-}
+};
 
 // Position adjustment to keep menu in viewport
 const adjustPosition = async () => {
-  if (!menuRef.value) return
+  if (!menuRef.value) return;
 
-  await nextTick()
+  await nextTick();
 
-  const menu = menuRef.value
-  const rect = menu.getBoundingClientRect()
+  const menu = menuRef.value;
+  const rect = menu.getBoundingClientRect();
   const viewport = {
     width: window.innerWidth,
-    height: window.innerHeight
-  }
+    height: window.innerHeight,
+  };
 
-  let { x, y } = props.position
+  let { x, y } = props.position;
 
   // Adjust horizontal position
   if (x + rect.width > viewport.width) {
-    x = viewport.width - rect.width - 10
+    x = viewport.width - rect.width - 10;
   }
 
   // Adjust vertical position
   if (y + rect.height > viewport.height) {
-    y = viewport.height - rect.height - 10
+    y = viewport.height - rect.height - 10;
   }
 
   // Ensure minimum distance from edges
-  x = Math.max(10, x)
-  y = Math.max(10, y)
+  x = Math.max(10, x);
+  y = Math.max(10, y);
 
-  menu.style.left = `${x}px`
-  menu.style.top = `${y}px`
-}
+  menu.style.left = `${x}px`;
+  menu.style.top = `${y}px`;
+};
 
 // Lifecycle
 onMounted(() => {
   if (props.isVisible) {
-    document.addEventListener('click', handleClickOutside)
-    document.addEventListener('keydown', handleKeyDown)
-    adjustPosition()
+    document.addEventListener("click", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    adjustPosition();
   }
-})
+});
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-  document.removeEventListener('keydown', handleKeyDown)
-})
+  document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("keydown", handleKeyDown);
+});
 
 // Watch for visibility changes
-watch(() => props.isVisible, (newValue) => {
-  if (newValue) {
-    document.addEventListener('click', handleClickOutside)
-    document.addEventListener('keydown', handleKeyDown)
-    adjustPosition()
-  } else {
-    document.removeEventListener('click', handleClickOutside)
-    document.removeEventListener('keydown', handleKeyDown)
-  }
-})
+watch(
+  () => props.isVisible,
+  (newValue) => {
+    if (newValue) {
+      document.addEventListener("click", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+      adjustPosition();
+    } else {
+      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    }
+  },
+);
 
 // Watch for position changes
-watch(() => props.position, () => {
-  if (props.isVisible) {
-    adjustPosition()
-  }
-}, { deep: true })
+watch(
+  () => props.position,
+  () => {
+    if (props.isVisible) {
+      adjustPosition();
+    }
+  },
+  { deep: true },
+);
 </script>
 
 <style scoped>

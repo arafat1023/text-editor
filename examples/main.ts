@@ -1,5 +1,5 @@
-import { createApp } from 'vue'
-import CompleteIntegration from './complete-integration.vue'
-import '../src/styles/editor.css'
+import { createApp } from "vue";
+import CompleteIntegration from "./complete-integration.vue";
+import "../src/styles/editor.css";
 
-createApp(CompleteIntegration).mount('#app')
+createApp(CompleteIntegration).mount("#app");

@@ -3,7 +3,8 @@
     <header class="demo-header">
       <h1>Complete Text Editor Integration</h1>
       <p class="demo-description">
-        This demo showcases all implemented features: rich text formatting, links, images, tables, text alignment, and clipboard operations.
+        This demo showcases all implemented features: rich text formatting,
+        links, images, tables, text alignment, and clipboard operations.
       </p>
     </header>
 
@@ -11,7 +12,9 @@
       <div class="editor-section">
         <h2>Rich Text Editor</h2>
         <p class="feature-info">
-          <strong>Features included:</strong> Text formatting, colors, fonts, links, images, tables, text alignment, lists, clipboard operations, and more.
+          <strong>Features included:</strong> Text formatting, colors, fonts,
+          links, images, tables, text alignment, lists, clipboard operations,
+          and more.
         </p>
 
         <TextEditor
@@ -114,7 +117,9 @@
               <h4>Images</h4>
               <ol>
                 <li>Click 🖼️ image button in toolbar</li>
-                <li>Enter an image URL (try: https://via.placeholder.com/300x200)</li>
+                <li>
+                  Enter an image URL (try: https://via.placeholder.com/300x200)
+                </li>
                 <li>Optionally provide alt text</li>
                 <li>Image will be inserted into the editor</li>
               </ol>
@@ -163,9 +168,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { TextEditor } from '../src'
-import type { ToolbarItem } from '../src/types'
+import { ref } from "vue";
+import { TextEditor } from "../src";
+import type { ToolbarItem } from "../src/types";
 
 // Editor content with sample data showcasing all features
 const editorContent = ref(`
@@ -256,108 +261,329 @@ const editorContent = ref(`
 </ul>
 
 <p style="text-align: center;">🎉 <strong>All features are now integrated and ready for testing!</strong></p>
-`)
+`);
 
 // Complete toolbar configuration with all features
 const customToolbarItems = ref<ToolbarItem[]>([
   // Text formatting group
   {
-    type: 'group',
+    type: "group",
     items: [
-      { type: 'button', name: 'bold', icon: 'bold', title: 'Bold (Ctrl+B)', command: 'bold' },
-      { type: 'button', name: 'italic', icon: 'italic', title: 'Italic (Ctrl+I)', command: 'italic' },
-      { type: 'button', name: 'underline', icon: 'underline', title: 'Underline (Ctrl+U)', command: 'underline' },
-      { type: 'button', name: 'strike', icon: 'strike', title: 'Strikethrough', command: 'strike' }
-    ]
+      {
+        type: "button",
+        name: "bold",
+        icon: "bold",
+        title: "Bold (Ctrl+B)",
+        command: "bold",
+      },
+      {
+        type: "button",
+        name: "italic",
+        icon: "italic",
+        title: "Italic (Ctrl+I)",
+        command: "italic",
+      },
+      {
+        type: "button",
+        name: "underline",
+        icon: "underline",
+        title: "Underline (Ctrl+U)",
+        command: "underline",
+      },
+      {
+        type: "button",
+        name: "strike",
+        icon: "strike",
+        title: "Strikethrough",
+        command: "strike",
+      },
+    ],
   },
-  { type: 'separator' },
+  { type: "separator" },
 
   // Color formatting
-  { type: 'color', title: 'Text Color', command: 'textColor' },
-  { type: 'color', title: 'Highlight Color', command: 'backgroundColor' },
-  { type: 'separator' },
+  { type: "color", title: "Text Color", command: "textColor" },
+  { type: "color", title: "Highlight Color", command: "backgroundColor" },
+  { type: "separator" },
 
   // Font formatting
-  { type: 'font', title: 'Font Family', command: 'fontFamily', fontType: 'family' },
-  { type: 'font', title: 'Font Size', command: 'fontSize', fontType: 'size' },
-  { type: 'separator' },
+  {
+    type: "font",
+    title: "Font Family",
+    command: "fontFamily",
+    fontType: "family",
+  },
+  { type: "font", title: "Font Size", command: "fontSize", fontType: "size" },
+  { type: "separator" },
 
   // Script formatting
   {
-    type: 'group',
+    type: "group",
     items: [
-      { type: 'button', name: 'superscript', icon: 'superscript', title: 'Superscript', command: 'superscript' },
-      { type: 'button', name: 'subscript', icon: 'subscript', title: 'Subscript', command: 'subscript' },
-      { type: 'button', name: 'code', icon: 'code', title: 'Inline Code (Ctrl+E)', command: 'code' }
-    ]
+      {
+        type: "button",
+        name: "superscript",
+        icon: "superscript",
+        title: "Superscript",
+        command: "superscript",
+      },
+      {
+        type: "button",
+        name: "subscript",
+        icon: "subscript",
+        title: "Subscript",
+        command: "subscript",
+      },
+      {
+        type: "button",
+        name: "code",
+        icon: "code",
+        title: "Inline Code (Ctrl+E)",
+        command: "code",
+      },
+    ],
   },
-  { type: 'separator' },
+  { type: "separator" },
 
   // Links & Media
-  { type: 'link', name: 'link', icon: 'link', title: 'Insert/Edit Link (Ctrl+K)', command: 'toggleLink' },
-  { type: 'button', name: 'image', icon: '🖼️', title: 'Insert Image (Ctrl+Shift+I)', command: 'insertImageWithPrompt' },
-  { type: 'separator' },
+  {
+    type: "link",
+    name: "link",
+    icon: "link",
+    title: "Insert/Edit Link (Ctrl+K)",
+    command: "toggleLink",
+  },
+  {
+    type: "button",
+    name: "image",
+    icon: "🖼️",
+    title: "Insert Image (Ctrl+Shift+I)",
+    command: "insertImageWithPrompt",
+  },
+  { type: "separator" },
 
   // Tables
   {
-    type: 'group',
+    type: "group",
     items: [
-      { type: 'button', name: 'insertTable', icon: '⊞', title: 'Insert Table', command: 'insertTable' },
-      { type: 'button', name: 'addColumnBefore', icon: '⊲', title: 'Add Column Before', command: 'addColumnBefore' },
-      { type: 'button', name: 'addColumnAfter', icon: '⊳', title: 'Add Column After', command: 'addColumnAfter' },
-      { type: 'button', name: 'deleteColumn', icon: '⊘', title: 'Delete Column', command: 'deleteColumn' },
-      { type: 'button', name: 'addRowBefore', icon: '⊤', title: 'Add Row Before', command: 'addRowBefore' },
-      { type: 'button', name: 'addRowAfter', icon: '⊥', title: 'Add Row After', command: 'addRowAfter' },
-      { type: 'button', name: 'deleteRow', icon: '⊖', title: 'Delete Row', command: 'deleteRow' },
-      { type: 'button', name: 'mergeCells', icon: '⋈', title: 'Merge Cells', command: 'mergeCells' },
-      { type: 'button', name: 'splitCell', icon: '⊟', title: 'Split Cell', command: 'splitCell' },
-      { type: 'button', name: 'toggleHeaderColumn', icon: '⊤', title: 'Toggle Header Column', command: 'toggleHeaderColumn' },
-      { type: 'button', name: 'toggleHeaderRow', icon: '⊤', title: 'Toggle Header Row', command: 'toggleHeaderRow' },
-      { type: 'button', name: 'deleteTable', icon: '🗑️', title: 'Delete Table', command: 'deleteTable' }
-    ]
+      {
+        type: "button",
+        name: "insertTable",
+        icon: "⊞",
+        title: "Insert Table",
+        command: "insertTable",
+      },
+      {
+        type: "button",
+        name: "addColumnBefore",
+        icon: "⊲",
+        title: "Add Column Before",
+        command: "addColumnBefore",
+      },
+      {
+        type: "button",
+        name: "addColumnAfter",
+        icon: "⊳",
+        title: "Add Column After",
+        command: "addColumnAfter",
+      },
+      {
+        type: "button",
+        name: "deleteColumn",
+        icon: "⊘",
+        title: "Delete Column",
+        command: "deleteColumn",
+      },
+      {
+        type: "button",
+        name: "addRowBefore",
+        icon: "⊤",
+        title: "Add Row Before",
+        command: "addRowBefore",
+      },
+      {
+        type: "button",
+        name: "addRowAfter",
+        icon: "⊥",
+        title: "Add Row After",
+        command: "addRowAfter",
+      },
+      {
+        type: "button",
+        name: "deleteRow",
+        icon: "⊖",
+        title: "Delete Row",
+        command: "deleteRow",
+      },
+      {
+        type: "button",
+        name: "mergeCells",
+        icon: "⋈",
+        title: "Merge Cells",
+        command: "mergeCells",
+      },
+      {
+        type: "button",
+        name: "splitCell",
+        icon: "⊟",
+        title: "Split Cell",
+        command: "splitCell",
+      },
+      {
+        type: "button",
+        name: "toggleHeaderColumn",
+        icon: "⊤",
+        title: "Toggle Header Column",
+        command: "toggleHeaderColumn",
+      },
+      {
+        type: "button",
+        name: "toggleHeaderRow",
+        icon: "⊤",
+        title: "Toggle Header Row",
+        command: "toggleHeaderRow",
+      },
+      {
+        type: "button",
+        name: "deleteTable",
+        icon: "🗑️",
+        title: "Delete Table",
+        command: "deleteTable",
+      },
+    ],
   },
-  { type: 'separator' },
+  { type: "separator" },
 
   // Text Alignment
   {
-    type: 'group',
+    type: "group",
     items: [
-      { type: 'button', name: 'alignLeft', icon: '⌊', title: 'Align Left', command: 'alignLeft' },
-      { type: 'button', name: 'alignCenter', icon: '⌊⌋', title: 'Align Center', command: 'alignCenter' },
-      { type: 'button', name: 'alignRight', icon: '⌋', title: 'Align Right', command: 'alignRight' },
-      { type: 'button', name: 'alignJustify', icon: '≡', title: 'Align Justify', command: 'alignJustify' }
-    ]
+      {
+        type: "button",
+        name: "alignLeft",
+        icon: "⌊",
+        title: "Align Left",
+        command: "alignLeft",
+      },
+      {
+        type: "button",
+        name: "alignCenter",
+        icon: "⌊⌋",
+        title: "Align Center",
+        command: "alignCenter",
+      },
+      {
+        type: "button",
+        name: "alignRight",
+        icon: "⌋",
+        title: "Align Right",
+        command: "alignRight",
+      },
+      {
+        type: "button",
+        name: "alignJustify",
+        icon: "≡",
+        title: "Align Justify",
+        command: "alignJustify",
+      },
+    ],
   },
-  { type: 'separator' },
+  { type: "separator" },
 
   // Block formatting
-  { type: 'heading', title: 'Heading', command: 'setHeading' },
-  { type: 'button', name: 'blockquote', icon: 'blockquote', title: 'Blockquote', command: 'toggleBlockquote' },
-  { type: 'button', name: 'codeBlock', icon: 'code-block', title: 'Code Block', command: 'toggleCodeBlock' },
-  { type: 'button', name: 'horizontalRule', icon: 'hr', title: 'Insert Divider', command: 'insertHorizontalRule' },
-  { type: 'separator' },
+  { type: "heading", title: "Heading", command: "setHeading" },
+  {
+    type: "button",
+    name: "blockquote",
+    icon: "blockquote",
+    title: "Blockquote",
+    command: "toggleBlockquote",
+  },
+  {
+    type: "button",
+    name: "codeBlock",
+    icon: "code-block",
+    title: "Code Block",
+    command: "toggleCodeBlock",
+  },
+  {
+    type: "button",
+    name: "horizontalRule",
+    icon: "hr",
+    title: "Insert Divider",
+    command: "insertHorizontalRule",
+  },
+  { type: "separator" },
 
   // Lists
-  { type: 'button', name: 'bulletList', icon: 'list-ul', title: 'Bullet List', command: 'bulletList' },
-  { type: 'button', name: 'orderedList', icon: 'list-ol', title: 'Ordered List', command: 'orderedList' },
-  { type: 'separator' },
+  {
+    type: "button",
+    name: "bulletList",
+    icon: "list-ul",
+    title: "Bullet List",
+    command: "bulletList",
+  },
+  {
+    type: "button",
+    name: "orderedList",
+    icon: "list-ol",
+    title: "Ordered List",
+    command: "orderedList",
+  },
+  { type: "separator" },
 
   // History
-  { type: 'button', name: 'undo', icon: 'undo', title: 'Undo (Ctrl+Z)', command: 'undo' },
-  { type: 'button', name: 'redo', icon: 'redo', title: 'Redo (Ctrl+Y)', command: 'redo' },
-  { type: 'separator' },
+  {
+    type: "button",
+    name: "undo",
+    icon: "undo",
+    title: "Undo (Ctrl+Z)",
+    command: "undo",
+  },
+  {
+    type: "button",
+    name: "redo",
+    icon: "redo",
+    title: "Redo (Ctrl+Y)",
+    command: "redo",
+  },
+  { type: "separator" },
 
   // Clipboard
   {
-    type: 'group',
+    type: "group",
     items: [
-      { type: 'button', name: 'copy', icon: 'copy', title: 'Copy (Ctrl+C)', command: 'copy' },
-      { type: 'button', name: 'cut', icon: 'cut', title: 'Cut (Ctrl+X)', command: 'cut' },
-      { type: 'button', name: 'paste', icon: 'paste', title: 'Paste (Ctrl+V)', command: 'paste' },
-      { type: 'button', name: 'pasteAsText', icon: 'paste-text', title: 'Paste as Plain Text (Ctrl+Shift+V)', command: 'pasteAsPlainText' }
-    ]
-  }
-])
+      {
+        type: "button",
+        name: "copy",
+        icon: "copy",
+        title: "Copy (Ctrl+C)",
+        command: "copy",
+      },
+      {
+        type: "button",
+        name: "cut",
+        icon: "cut",
+        title: "Cut (Ctrl+X)",
+        command: "cut",
+      },
+      {
+        type: "button",
+        name: "paste",
+        icon: "paste",
+        title: "Paste (Ctrl+V)",
+        command: "paste",
+      },
+      {
+        type: "button",
+        name: "pasteAsText",
+        icon: "paste-text",
+        title: "Paste as Plain Text (Ctrl+Shift+V)",
+        command: "pasteAsPlainText",
+      },
+    ],
+  },
+]);
 </script>
 
 <style scoped>
@@ -365,7 +591,8 @@ const customToolbarItems = ref<ToolbarItem[]>([
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .demo-header {

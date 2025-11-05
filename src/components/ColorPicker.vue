@@ -3,7 +3,7 @@
     <button
       :class="[
         'color-picker__trigger',
-        { 'color-picker__trigger--active': isOpen }
+        { 'color-picker__trigger--active': isOpen },
       ]"
       :title="title"
       @click="togglePicker"
@@ -16,18 +16,14 @@
       <span class="color-picker__arrow">▼</span>
     </button>
 
-    <div
-      v-if="isOpen"
-      class="color-picker__dropdown"
-      @click.stop
-    >
+    <div v-if="isOpen" class="color-picker__dropdown" @click.stop>
       <div class="color-picker__preset-colors">
         <button
           v-for="color in presetColors"
           :key="color"
           :class="[
             'color-picker__color-option',
-            { 'color-picker__color-option--active': currentColor === color }
+            { 'color-picker__color-option--active': currentColor === color },
           ]"
           :style="{ backgroundColor: color }"
           :title="color"
@@ -36,10 +32,7 @@
       </div>
 
       <div class="color-picker__actions">
-        <button
-          class="color-picker__remove"
-          @click="removeColor"
-        >
+        <button class="color-picker__remove" @click="removeColor">
           Remove Color
         </button>
 
@@ -55,66 +48,81 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 // Props
-const props = withDefaults(defineProps<{
-  modelValue?: string
-  title?: string
-  presetColors?: string[]
-}>(), {
-  title: 'Text Color',
-  presetColors: () => [
-    '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff',
-    '#ffff00', '#ff00ff', '#00ffff', '#808080', '#ffa500',
-    '#800080', '#008000', '#000080', '#800000', '#808000'
-  ]
-})
+const props = withDefaults(
+  defineProps<{
+    modelValue?: string;
+    title?: string;
+    presetColors?: string[];
+  }>(),
+  {
+    title: "Text Color",
+    presetColors: () => [
+      "#000000",
+      "#ffffff",
+      "#ff0000",
+      "#00ff00",
+      "#0000ff",
+      "#ffff00",
+      "#ff00ff",
+      "#00ffff",
+      "#808080",
+      "#ffa500",
+      "#800080",
+      "#008000",
+      "#000080",
+      "#800000",
+      "#808000",
+    ],
+  },
+);
 
 // Emits
 const emit = defineEmits<{
-  'update:modelValue': [color: string | null]
-  'change': [color: string | null]
-}>()
+  "update:modelValue": [color: string | null];
+  change: [color: string | null];
+}>();
 
 // State
-const isOpen = ref(false)
-const customColor = ref('#000000')
+const isOpen = ref(false);
+const customColor = ref("#000000");
 
 // Computed
-const currentColor = computed(() => props.modelValue || '#000000')
+const currentColor = computed(() => props.modelValue || "#000000");
 
 // Methods
 const togglePicker = () => {
-  isOpen.value = !isOpen.value
-}
+  isOpen.value = !isOpen.value;
+};
 
 const selectColor = (color: string) => {
-  emit('update:modelValue', color)
-  emit('change', color)
-  isOpen.value = false
-}
+  emit("update:modelValue", color);
+  emit("change", color);
+  isOpen.value = false;
+};
 
 const removeColor = () => {
-  emit('update:modelValue', null)
-  emit('change', null)
-  isOpen.value = false
-}
+  emit("update:modelValue", null);
+  emit("change", null);
+  isOpen.value = false;
+};
 
 const closePicker = (event: Event) => {
-  if (!((event.target as Element)?.closest('.color-picker'))) {
-    isOpen.value = false
+  if (!(event.target as Element)?.closest(".color-picker")) {
+    isOpen.value = false;
   }
-}
+};
 
 // Lifecycle
 onMounted(() => {
-  document.addEventListener('click', closePicker)
-})
+  document.addEventListener("click", closePicker);
+});
 
 onUnmounted(() => {
-  document.removeEventListener('click', closePicker)
-})
+  document.removeEventListener("click", closePicker);
+});
 </script>
 
 <style scoped>

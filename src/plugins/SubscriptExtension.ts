@@ -1,6 +1,6 @@
-import type { Extension } from '@/types'
+import type { Extension } from "@/types";
 
 export const SubscriptExtension: Extension = {
-  name: 'subscript',
-  type: 'mark'
-}
+  name: "subscript",
+  type: "mark",
+};

@@ -4,7 +4,7 @@
     :class="{
       'image-upload--dragging': isDragging,
       'image-upload--disabled': disabled,
-      'image-upload--compact': compact
+      'image-upload--compact': compact,
     }"
     @drop="handleDrop"
     @dragover.prevent="handleDragOver"
@@ -19,7 +19,7 @@
       multiple
       style="display: none"
       @change="handleFileSelect"
-    >
+    />
 
     <div class="image-upload__content">
       <div class="image-upload__icon">
@@ -29,10 +29,17 @@
 
       <div class="image-upload__text">
         <div class="image-upload__title">
-          {{ uploading ? 'Uploading...' : (compact ? 'Add Image' : 'Drop images here or click to browse') }}
+          {{
+            uploading
+              ? "Uploading..."
+              : compact
+                ? "Add Image"
+                : "Drop images here or click to browse"
+          }}
         </div>
         <div v-if="!compact && !uploading" class="image-upload__subtitle">
-          Supports: JPG, PNG, GIF, WebP • Max size: {{ formatFileSize(maxSize) }}
+          Supports: JPG, PNG, GIF, WebP • Max size:
+          {{ formatFileSize(maxSize) }}
         </div>
       </div>
 
@@ -55,19 +62,27 @@
         class="image-upload__progress-item"
         :class="{
           'image-upload__progress-item--success': item.status === 'success',
-          'image-upload__progress-item--error': item.status === 'error'
+          'image-upload__progress-item--error': item.status === 'error',
         }"
       >
         <div class="image-upload__progress-preview">
-          <img v-if="item.preview" :src="item.preview" :alt="item.name">
+          <img v-if="item.preview" :src="item.preview" :alt="item.name" />
           <span v-else class="image-upload__progress-placeholder">📷</span>
         </div>
         <div class="image-upload__progress-info">
           <div class="image-upload__progress-name">{{ item.name }}</div>
           <div class="image-upload__progress-status">
             <span v-if="item.status === 'uploading'">{{ item.progress }}%</span>
-            <span v-else-if="item.status === 'success'" class="image-upload__success">✓ Uploaded</span>
-            <span v-else-if="item.status === 'error'" class="image-upload__error">✗ {{ item.error }}</span>
+            <span
+              v-else-if="item.status === 'success'"
+              class="image-upload__success"
+              >✓ Uploaded</span
+            >
+            <span
+              v-else-if="item.status === 'error'"
+              class="image-upload__error"
+              >✗ {{ item.error }}</span
+            >
           </div>
         </div>
         <button
@@ -83,145 +98,151 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { validateImageFile, createImagePreview } from '@/plugins/ImageExtension'
+import { ref, computed } from "vue";
+import {
+  validateImageFile,
+  createImagePreview,
+} from "@/plugins/ImageExtension";
 
 interface UploadProgressItem {
-  name: string
-  file: File
-  preview?: string
-  progress: number
-  status: 'uploading' | 'success' | 'error'
-  error?: string
+  name: string;
+  file: File;
+  preview?: string;
+  progress: number;
+  status: "uploading" | "success" | "error";
+  error?: string;
 }
 
 // Props
-const props = withDefaults(defineProps<{
-  maxSize?: number
-  allowedTypes?: string[]
-  multiple?: boolean
-  disabled?: boolean
-  compact?: boolean
-  uploadHandler?: (file: File) => Promise<string>
-}>(), {
-  maxSize: 10 * 1024 * 1024, // 10MB
-  allowedTypes: () => ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-  multiple: false,
-  disabled: false,
-  compact: false
-})
+const props = withDefaults(
+  defineProps<{
+    maxSize?: number;
+    allowedTypes?: string[];
+    multiple?: boolean;
+    disabled?: boolean;
+    compact?: boolean;
+    uploadHandler?: (file: File) => Promise<string>;
+  }>(),
+  {
+    maxSize: 10 * 1024 * 1024, // 10MB
+    allowedTypes: () => ["image/jpeg", "image/png", "image/gif", "image/webp"],
+    multiple: false,
+    disabled: false,
+    compact: false,
+  },
+);
 
 // Emits
 const emit = defineEmits<{
-  'upload': [files: File[]]
-  'success': [data: { file: File; url: string }]
-  'error': [data: { file: File; error: string }]
-  'progress': [data: { file: File; progress: number }]
-}>()
+  upload: [files: File[]];
+  success: [data: { file: File; url: string }];
+  error: [data: { file: File; error: string }];
+  progress: [data: { file: File; progress: number }];
+}>();
 
 // State
-const fileInput = ref<HTMLInputElement>()
-const isDragging = ref(false)
-const dragCounter = ref(0)
-const uploadProgress = ref<UploadProgressItem[]>([])
+const fileInput = ref<HTMLInputElement>();
+const isDragging = ref(false);
+const dragCounter = ref(0);
+const uploadProgress = ref<UploadProgressItem[]>([]);
 
 // Computed
 const uploading = computed(() =>
-  uploadProgress.value.some(item => item.status === 'uploading')
-)
+  uploadProgress.value.some((item) => item.status === "uploading"),
+);
 
 // Methods
 const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
 
 const openFileDialog = () => {
-  if (props.disabled || uploading.value) return
-  fileInput.value?.click()
-}
+  if (props.disabled || uploading.value) return;
+  fileInput.value?.click();
+};
 
 const handleFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const files = Array.from(target.files || [])
+  const target = event.target as HTMLInputElement;
+  const files = Array.from(target.files || []);
   if (files.length > 0) {
-    processFiles(files)
+    processFiles(files);
   }
   // Reset input
-  target.value = ''
-}
+  target.value = "";
+};
 
 const handleDragEnter = (event: DragEvent) => {
-  event.preventDefault()
-  dragCounter.value++
-  isDragging.value = true
-}
+  event.preventDefault();
+  dragCounter.value++;
+  isDragging.value = true;
+};
 
 const handleDragLeave = (event: DragEvent) => {
-  event.preventDefault()
-  dragCounter.value--
+  event.preventDefault();
+  dragCounter.value--;
   if (dragCounter.value === 0) {
-    isDragging.value = false
+    isDragging.value = false;
   }
-}
+};
 
 const handleDragOver = (event: DragEvent) => {
-  event.preventDefault()
-}
+  event.preventDefault();
+};
 
 const handleDrop = (event: DragEvent) => {
-  event.preventDefault()
-  isDragging.value = false
-  dragCounter.value = 0
+  event.preventDefault();
+  isDragging.value = false;
+  dragCounter.value = 0;
 
-  if (props.disabled || uploading.value) return
+  if (props.disabled || uploading.value) return;
 
-  const files = Array.from(event.dataTransfer?.files || [])
-  const imageFiles = files.filter(file => file.type.startsWith('image/'))
+  const files = Array.from(event.dataTransfer?.files || []);
+  const imageFiles = files.filter((file) => file.type.startsWith("image/"));
 
   if (imageFiles.length > 0) {
-    processFiles(imageFiles)
+    processFiles(imageFiles);
   }
-}
+};
 
 const processFiles = async (files: File[]) => {
   // Limit to single file if multiple is false
-  const filesToProcess = props.multiple ? files : files.slice(0, 1)
+  const filesToProcess = props.multiple ? files : files.slice(0, 1);
 
   // Validate files
-  const validFiles: File[] = []
+  const validFiles: File[] = [];
   for (const file of filesToProcess) {
     const validation = validateImageFile(file, {
       maxSize: props.maxSize,
-      allowedTypes: props.allowedTypes
-    })
+      allowedTypes: props.allowedTypes,
+    });
 
     if (validation.valid) {
-      validFiles.push(file)
+      validFiles.push(file);
     } else {
       // Add error item to progress
       uploadProgress.value.push({
         name: file.name,
         file,
         progress: 0,
-        status: 'error',
-        error: validation.error
-      })
+        status: "error",
+        error: validation.error,
+      });
     }
   }
 
-  if (validFiles.length === 0) return
+  if (validFiles.length === 0) return;
 
-  emit('upload', validFiles)
+  emit("upload", validFiles);
 
   // Process each valid file
   for (const file of validFiles) {
-    await uploadFile(file)
+    await uploadFile(file);
   }
-}
+};
 
 const uploadFile = async (file: File) => {
   // Create progress item
@@ -229,88 +250,90 @@ const uploadFile = async (file: File) => {
     name: file.name,
     file,
     progress: 0,
-    status: 'uploading'
-  }
+    status: "uploading",
+  };
 
   // Generate preview
   try {
-    progressItem.preview = await createImagePreview(file)
+    progressItem.preview = await createImagePreview(file);
   } catch (error) {
-    console.warn('Failed to create preview:', error)
+    console.warn("Failed to create preview:", error);
   }
 
-  uploadProgress.value.push(progressItem)
-  const itemIndex = uploadProgress.value.length - 1
+  uploadProgress.value.push(progressItem);
+  const itemIndex = uploadProgress.value.length - 1;
 
   try {
-    let url: string
+    let url: string;
 
     if (props.uploadHandler) {
       // Use custom upload handler
-      url = await props.uploadHandler(file)
+      url = await props.uploadHandler(file);
     } else {
       // Use default FileReader for local preview
-      url = await createImagePreview(file)
+      url = await createImagePreview(file);
     }
 
     // Simulate progress for better UX
     for (let progress = 10; progress <= 100; progress += 10) {
-      await new Promise(resolve => setTimeout(resolve, 50))
-      uploadProgress.value[itemIndex].progress = progress
-      emit('progress', { file, progress })
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      uploadProgress.value[itemIndex].progress = progress;
+      emit("progress", { file, progress });
     }
 
     // Mark as success
-    uploadProgress.value[itemIndex].status = 'success'
-    uploadProgress.value[itemIndex].progress = 100
+    uploadProgress.value[itemIndex].status = "success";
+    uploadProgress.value[itemIndex].progress = 100;
 
-    emit('success', { file, url })
+    emit("success", { file, url });
 
     // Remove from progress after delay
     setTimeout(() => {
-      const index = uploadProgress.value.findIndex(item => item.file === file)
+      const index = uploadProgress.value.findIndex(
+        (item) => item.file === file,
+      );
       if (index !== -1) {
-        uploadProgress.value.splice(index, 1)
+        uploadProgress.value.splice(index, 1);
       }
-    }, 2000)
-
+    }, 2000);
   } catch (error) {
     // Mark as error
-    uploadProgress.value[itemIndex].status = 'error'
-    uploadProgress.value[itemIndex].error = error instanceof Error ? error.message : 'Upload failed'
+    uploadProgress.value[itemIndex].status = "error";
+    uploadProgress.value[itemIndex].error =
+      error instanceof Error ? error.message : "Upload failed";
 
-    emit('error', {
+    emit("error", {
       file,
-      error: error instanceof Error ? error.message : 'Upload failed'
-    })
+      error: error instanceof Error ? error.message : "Upload failed",
+    });
   }
-}
+};
 
 const retryUpload = (index: number) => {
-  const item = uploadProgress.value[index]
-  if (item && item.status === 'error') {
+  const item = uploadProgress.value[index];
+  if (item && item.status === "error") {
     // Reset item
-    item.status = 'uploading'
-    item.progress = 0
-    item.error = undefined
+    item.status = "uploading";
+    item.progress = 0;
+    item.error = undefined;
 
     // Retry upload
-    uploadFile(item.file)
+    uploadFile(item.file);
   }
-}
+};
 
 // Clean up progress items that are completed
 const clearProgress = () => {
   uploadProgress.value = uploadProgress.value.filter(
-    item => item.status === 'uploading'
-  )
-}
+    (item) => item.status === "uploading",
+  );
+};
 
 // Expose methods
 defineExpose({
   clearProgress,
-  openFileDialog
-})
+  openFileDialog,
+});
 </script>
 
 <style scoped>
@@ -379,8 +402,12 @@ defineExpose({
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .image-upload__text {

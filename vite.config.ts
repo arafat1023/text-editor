@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import dts from 'vite-plugin-dts'
-import { resolve } from 'path'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import dts from "vite-plugin-dts";
+import { resolve } from "path";
 
 export default defineConfig({
   plugins: [
@@ -12,26 +12,26 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      "@": resolve(__dirname, "src"),
     },
   },
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'TextEditorVue',
-      fileName: 'index',
-      formats: ['es', 'umd'],
+      entry: resolve(__dirname, "src/index.ts"),
+      name: "TextEditorVue",
+      fileName: "index",
+      formats: ["es", "umd"],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ["vue"],
       output: {
         globals: {
-          vue: 'Vue',
+          vue: "Vue",
         },
       },
     },
   },
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
   },
-})
+});
